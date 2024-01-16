@@ -75,7 +75,7 @@ private:
     int swap_interval = 1;
     float fov_degrees = 45.0f;
 
-    float lastX, lastY;
+    float lastX, lastY, xoffset, yoffset;
     Camera camera = Camera(glm::vec3(0.0f, 5.0f, 10.0f));
     
     std::unordered_map<std::string, Mesh> scene;

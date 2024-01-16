@@ -389,6 +389,8 @@ int App::run(void)
 
 		camera.MovementSpeed *= 3;
 		camera.Position = glm::vec3(0.0f, 5.0f, 10.0f);
+		lastX = 400;
+		lastY = 300;
 
 		cv::Point2f tracker_normalized_center{ 0 };
 		while (!glfwWindowShouldClose(window))
@@ -416,6 +418,10 @@ int App::run(void)
 			else {
 				camera.Position.y += offset.y;
 			}
+
+			// process mouse movements
+			camera.ProcessMouseMovement(xoffset, yoffset);
+			xoffset = 0; yoffset = 0;
 
 			// OpenGL stuff...
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

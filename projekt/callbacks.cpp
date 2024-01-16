@@ -64,6 +64,12 @@ void App::glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffse
 
 void App::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+	auto inst = static_cast<App*>(glfwGetWindowUserPointer(window));
+
+	inst->xoffset = xpos - inst->lastX;
+	inst->yoffset = inst->lastY - ypos; // reversed since y-coordinates range from bottom to top
+	inst->lastX = xpos;
+	inst->lastY = ypos;
 }
 
 void GLAPIENTRY App::MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
