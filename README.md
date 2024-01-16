@@ -1,0 +1,1 @@
+# ICP_Semestralka_Safarik_Mach
