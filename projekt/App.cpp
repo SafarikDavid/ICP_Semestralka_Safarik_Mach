@@ -67,13 +67,14 @@ void App::init_glfw(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+	window = glfwCreateWindow(800, 600, "Gamesa", NULL, NULL);
 	if (!window) {
 		throw std::exception("GLFW window can not be created.");
 	}
 
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
+
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
@@ -287,6 +288,26 @@ void App::update_projection_matrix(void)
 	);
 }
 
+void App::toggleFullscreen(GLFWwindow* window)
+{
+	if (!isFullscreen) {
+		// Switch to fullscreen mode
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+	}
+	else {
+		// Switch to windowed mode
+		glfwSetWindowMonitor(window, nullptr, 100, 100, 800, 600, GLFW_DONT_CARE);
+	}
+	isFullscreen = !isFullscreen;
+	glfwSwapInterval(swap_interval); // set vsync
+
+	firstMouse = true;
+	lastX = width / 2;
+	lastY = height / 2;	
+}
+
 // Secure access to map
 uchar App::getmap(cv::Mat& map, int x, int y)
 {
@@ -389,8 +410,8 @@ int App::run(void)
 
 		camera.MovementSpeed *= 3;
 		camera.Position = glm::vec3(0.0f, 5.0f, 10.0f);
-		lastX = 400;
-		lastY = 300;
+		lastX = width/2;
+		lastY = height/2;
 
 		cv::Point2f tracker_normalized_center{ 0 };
 		while (!glfwWindowShouldClose(window))

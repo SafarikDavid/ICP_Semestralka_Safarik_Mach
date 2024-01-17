@@ -55,6 +55,8 @@ private:
 
     void update_projection_matrix(void);
 
+    void toggleFullscreen(GLFWwindow* window);
+
     uchar getmap(cv::Mat& map, int x, int y);
     void genLabyrinth(cv::Mat& map);
 
@@ -75,8 +77,11 @@ private:
     int swap_interval = 1;
     float fov_degrees = 45.0f;
 
+    bool firstMouse = true;
     float lastX, lastY, xoffset, yoffset;
     Camera camera = Camera(glm::vec3(0.0f, 5.0f, 10.0f));
+
+    bool isFullscreen = false;
     
     std::unordered_map<std::string, Mesh> scene;
 };

@@ -46,6 +46,9 @@ void App::glfw_key_callback(GLFWwindow* window, int key, int scancode, int actio
 			break;
 		case GLFW_KEY_E:
 			break;
+		case GLFW_KEY_M:	// windowed/fullscreen
+			inst->toggleFullscreen(window);
+			break;
 		default:
 			break;
 		}
@@ -65,6 +68,13 @@ void App::glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffse
 void App::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	auto inst = static_cast<App*>(glfwGetWindowUserPointer(window));
+
+	if (inst->firstMouse)
+	{
+		inst->lastX = xpos;
+		inst->lastY = ypos;
+		inst->firstMouse = false;
+	}
 
 	inst->xoffset = xpos - inst->lastX;
 	inst->yoffset = inst->lastY - ypos; // reversed since y-coordinates range from bottom to top
