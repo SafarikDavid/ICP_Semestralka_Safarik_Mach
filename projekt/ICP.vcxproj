@@ -147,6 +147,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="OBJloader.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
+    <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="synced_deque.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -155,6 +156,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="OBJloader.h" />
     <ClInclude Include="ShaderProgram.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="synced_deque.h" />
   </ItemGroup>
   <ItemGroup>

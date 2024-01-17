@@ -37,6 +37,7 @@ public:
 
 	glm::mat4 model_matrix;
 	glm::vec4 diffuse_material;
+	GLuint texture = 0;
 	
 	ShaderProgram mesh_shader;
 
@@ -86,6 +87,11 @@ public:
 		mesh_shader.setUniform("uVm", view_matrix);
 		mesh_shader.setUniform("uMm", model_matrix);
 		mesh_shader.setUniform("diffuse_material", diffuse_material);
+
+		if (texture != 0)
+			glBindTexture(GL_TEXTURE_2D, texture);
+		glActiveTexture(GL_TEXTURE0);
+		mesh_shader.setUniform("ourTexture", 0);
 
 		glBindVertexArray(VAO_ID);
 		if (indices.empty())

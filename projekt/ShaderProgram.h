@@ -23,9 +23,26 @@ public:
 	void deactivate(void) { glUseProgram(0); };
 	void clear(void) { deactivate();  glDeleteProgram(ID); ID = 0; };
 
-	//void setUniform(const std::string& name, float val);
-	//void setUniform(const std::string& name, int val);
-	//void setUniform(const std::string& name, glm::vec3 val);
+	void setUniform(const std::string& name, const float in_float) {
+		auto loc = getUniformLocation(name);
+		if (loc >= 0) {
+			glUniform1f(loc, in_float);
+		}
+	}
+	
+	void setUniform(const std::string& name, int in_int) {
+		auto loc = getUniformLocation(name);
+		if (loc >= 0) {
+			glUniform1i(loc, in_int);
+		}
+	}
+	
+	void setUniform(const std::string& name, glm::vec3 in_vec3) {
+		auto loc = getUniformLocation(name);
+		if (loc >= 0) {
+			glUniform3fv(loc, 1, glm::value_ptr(in_vec3));
+		}
+	}
 
 	void setUniform(const std::string& name, const glm::vec4& in_vec4) {
 		auto loc = getUniformLocation(name);

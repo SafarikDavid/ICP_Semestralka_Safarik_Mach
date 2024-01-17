@@ -12,6 +12,7 @@
 #include "camera.h"
 #include "ShaderProgram.h"
 #include "Mesh.h"
+#include "stb_image.h"
 
 // our application class 
 class App {
@@ -38,6 +39,8 @@ private:
     void init_glfw(void);
     void init_gl_debug();
     void init_assets(void);
+
+    GLuint gen_tex(const std::filesystem::path& file_name);
 
     void print_opencv_info();
     void print_glfw_info(void);

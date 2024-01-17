@@ -141,16 +141,43 @@ void App::init_gl_debug()
 
 void App::init_assets(void)
 {
+	// texutre
+	//GLuint texture;
+	//glGenTextures(1, &texture);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+	//// set the texture wrapping/filtering options (on the currently bound texture object)
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//// load and generate the texture
+	//int loc_width, loc_height, nrChannels;
+	//unsigned char* data = stbi_load("resources/textures/box_rgb888.png", &loc_width, &loc_height, &nrChannels, 0);
+	//if (data)
+	//{
+	//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, loc_width, loc_height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	//	glGenerateMipmap(GL_TEXTURE_2D);
+	//}
+	//else
+	//{
+	//	std::cout << "Failed to load texture" << std::endl;
+	//}
+	//stbi_image_free(data);
+
+	GLuint texture_box = gen_tex("resources/textures/box_rgb888.png");
+	GLuint texture_floor = gen_tex("resources/textures/pavement.jpg");
+
+
 	//ShaderProgram s("resources/shaders/obj.vert", "resources/shaders/obj.frag");
 
 	// fully static objects - initialize all (including position) in init_assets()
 	scene["plane"] = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/plane_tri_vnt.obj");
 	scene["plane"].model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(5, 0, 5));
-	scene["plane"].diffuse_material = glm::vec4(glm::vec3(0.2,0.4,0.2), 1.0);
-//	scene["plane"].diffuse_material = glm::vec4(0.0);
+	scene["plane"].diffuse_material = glm::vec4(glm::vec3(0.8), 1.0);
+	scene["plane"].texture = texture_floor;
 
 	auto temp_cube = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/cube_triangles_normals_tex.obj");
-	//auto temp_cube = Mesh(s, "resources/models/cube_triangles_normals_tex.obj");
+	temp_cube.texture = texture_box;
 
 	// dynamic objects are initialized only partially
 	scene["cube"] = temp_cube;
@@ -163,7 +190,7 @@ void App::init_assets(void)
 				case '.':
 					break;
 				case 'e':
-					temp_cube.diffuse_material = glm::vec4(glm::vec3(0.4, 0.2,0.2), 1.0);
+					temp_cube.diffuse_material = glm::vec4(glm::vec3(0.8, 0.4,0.4), 1.0);
 					temp_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
 					scene[std::string("bedna ").append(std::to_string(cols).append(";").append(std::to_string(rows)))] =
 						temp_cube;
@@ -175,7 +202,7 @@ void App::init_assets(void)
 						temp_cube;*/
 					break;
 				case '#':
-					temp_cube.diffuse_material = glm::vec4(glm::vec3(0.2), 1.0);
+					temp_cube.diffuse_material = glm::vec4(glm::vec3(0.8), 1.0);
 					temp_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
 					scene[std::string("bedna ").append(std::to_string(cols).append(";").append(std::to_string(rows)))] = 
 						temp_cube;
@@ -185,6 +212,58 @@ void App::init_assets(void)
 			}
 		}
 	}
+}
+
+GLuint App::gen_tex(const std::filesystem::path& file_name)
+{
+	GLuint ID;
+	cv::Mat image = cv::imread(file_name.string(), cv::IMREAD_UNCHANGED); // Read with (potential) Alpha
+
+	// Generates an OpenGL texture object
+	glGenTextures(1, &ID);
+
+	// Assigns the texture to a Texture Unit
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, ID);
+
+	// Texture data alignment for transfer (single byte = basic, slow, but safe option; usually not necessary) 
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	// Assigns the image to the OpenGL Texture object
+	switch (image.channels()) {
+	case 3:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.cols, image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, image.data);
+		break;
+	case 4:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.cols, image.rows, 0, GL_BGRA, GL_UNSIGNED_BYTE, image.data);
+		break;
+	default:
+		throw std::exception("texture failed"); // Check the image, we want Alpha in this example    
+	}
+
+
+
+	// Configures the type of algorithm that is used to make the image smaller or bigger
+	// nearest neighbor - ugly & fast 
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	// bilinear - nicer & slower
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);    
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	// MIPMAP filtering + automatic MIPMAP generation - nicest, needs more memory. Notice: MIPMAP is only for image minifying.
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // bilinear magnifying
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // trilinear minifying
+	glGenerateMipmap(GL_TEXTURE_2D);  //Generate mipmaps now.
+
+	// Configures the way the texture repeats
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	// Unbinds the OpenGL Texture object so that it can't accidentally be modified
+	glBindTexture(GL_TEXTURE_2D, 0);
+	return ID;
 }
 
 void App::print_opencv_info()
@@ -408,8 +487,8 @@ int App::run(void)
 		update_projection_matrix();
 		glViewport(0, 0, width, height);
 
-		camera.MovementSpeed *= 3;
-		camera.Position = glm::vec3(0.0f, 5.0f, 10.0f);
+		camera.MovementSpeed = 3;
+		//camera.Position = glm::vec3(0.0f, 5.0f, 10.0f);
 		lastX = width/2;
 		lastY = height/2;
 
