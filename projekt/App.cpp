@@ -141,32 +141,8 @@ void App::init_gl_debug()
 
 void App::init_assets(void)
 {
-	// texutre
-	//GLuint texture;
-	//glGenTextures(1, &texture);
-	//glBindTexture(GL_TEXTURE_2D, texture);
-	//// set the texture wrapping/filtering options (on the currently bound texture object)
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//// load and generate the texture
-	//int loc_width, loc_height, nrChannels;
-	//unsigned char* data = stbi_load("resources/textures/box_rgb888.png", &loc_width, &loc_height, &nrChannels, 0);
-	//if (data)
-	//{
-	//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, loc_width, loc_height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	//	glGenerateMipmap(GL_TEXTURE_2D);
-	//}
-	//else
-	//{
-	//	std::cout << "Failed to load texture" << std::endl;
-	//}
-	//stbi_image_free(data);
-
-	GLuint texture_box = gen_tex("resources/textures/box_rgb888.png");
-	GLuint texture_floor = gen_tex("resources/textures/pavement.jpg");
-
+	GLuint texture_box = loadTexture("resources/textures/box_rgb888.png");
+	GLuint texture_floor = loadTexture("resources/textures/pavement.jpg");
 
 	//ShaderProgram s("resources/shaders/obj.vert", "resources/shaders/obj.frag");
 
@@ -196,10 +172,7 @@ void App::init_assets(void)
 						temp_cube;
 					break;
 				case 'X':
-					/*temp_cube.diffuse_material = glm::vec4(glm::vec3(0.4, 0.2, 0.2), 1.0);
-					temp_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
-					scene[std::string("bedna ").append(std::to_string(cols).append(";").append(std::to_string(rows)))] =
-						temp_cube;*/
+					// player starting position
 					break;
 				case '#':
 					temp_cube.diffuse_material = glm::vec4(glm::vec3(0.8), 1.0);
@@ -212,6 +185,43 @@ void App::init_assets(void)
 			}
 		}
 	}
+}
+
+GLuint App::loadTexture(char const* path)
+{
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+
+	int width, height, nrComponents;
+	unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
+	if (data)
+	{
+		GLenum format{};
+		if (nrComponents == 1)
+			format = GL_RED;
+		else if (nrComponents == 3)
+			format = GL_RGB;
+		else if (nrComponents == 4)
+			format = GL_RGBA;
+
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat 
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		stbi_image_free(data);
+	}
+	else
+	{
+		std::cout << "Texture failed to load at path: " << path << std::endl;
+		stbi_image_free(data);
+	}
+
+	return textureID;
 }
 
 GLuint App::gen_tex(const std::filesystem::path& file_name)

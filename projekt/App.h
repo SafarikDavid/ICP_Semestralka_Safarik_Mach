@@ -40,6 +40,7 @@ private:
     void init_gl_debug();
     void init_assets(void);
 
+    GLuint loadTexture(char const* path);
     GLuint gen_tex(const std::filesystem::path& file_name);
 
     void print_opencv_info();
