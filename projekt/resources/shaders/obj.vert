@@ -7,15 +7,19 @@ uniform mat4 uMm = mat4(1.0);
 uniform mat4 uVm = mat4(1.0);
 uniform mat4 uPm = mat4(1.0);
 
+uniform vec3 uLightPos;
+
 out vec2 texcoord;
 out vec3 normal;
+out vec3 fragPos;
+out vec3 lightPos;
 
 void main()
-{
+{	
     // Outputs the positions/coordinates of all vertices
     gl_Position = uPm * uVm * uMm * vec4(aPos, 1.0f);
-    
+    fragPos = vec3(uVm * uMm * vec4(aPos, 1.0));
     texcoord = aTexcoord;
-    
-    normal = aNormal; //incorrect, mus must be recomputed for light model
+    normal = mat3(transpose(inverse(uVm * uMm))) * aNormal;
+    lightPos = vec3(uVm * vec4(uLightPos, 1.0)); // Transform world-space light position to view-space light position
 }

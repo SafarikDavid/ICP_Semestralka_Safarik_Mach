@@ -150,6 +150,9 @@ void App::init_assets(void)
 	scene["plane"] = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/plane_tri_vnt.obj");
 	scene["plane"].model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(5, 0, 5));
 	scene["plane"].diffuse_material = glm::vec4(glm::vec3(0.8), 1.0);
+	scene["plane"].specular_material = glm::vec4(glm::vec3(0.8), 1.0);
+	scene["plane"].ambient_material = glm::vec4(glm::vec3(0.8), 1.0);
+	scene["plane"].shininess = 32.0f;
 	scene["plane"].texture = texture_floor;
 
 	auto temp_cube = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/cube_triangles_normals_tex.obj");
@@ -158,6 +161,9 @@ void App::init_assets(void)
 	// dynamic objects are initialized only partially
 	scene["cube"] = temp_cube;
 	scene["cube"].diffuse_material = glm::vec4(1.0f);
+	scene["cube"].specular_material = glm::vec4(1.0);
+	scene["cube"].ambient_material = glm::vec4(1.0);
+	scene["cube"].shininess = 12.0f;
 
 	//Labyrinth build
 	for (auto cols = 0; cols < mapa.cols; ++cols) {
@@ -166,7 +172,10 @@ void App::init_assets(void)
 				case '.':
 					break;
 				case 'e':
-					temp_cube.diffuse_material = glm::vec4(glm::vec3(0.8, 0.4,0.4), 1.0);
+					temp_cube.diffuse_material = glm::vec4(glm::vec3(0.8, 0.4, 0.4), 1.0);
+					temp_cube.specular_material = glm::vec4(glm::vec3(0.8, 0.4, 0.4), 1.0);
+					temp_cube.ambient_material = glm::vec4(glm::vec3(0.8, 0.4, 0.4), 1.0);
+					temp_cube.shininess = 12.0f;
 					temp_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
 					scene[std::string("bedna ").append(std::to_string(cols).append(";").append(std::to_string(rows)))] =
 						temp_cube;
@@ -176,6 +185,9 @@ void App::init_assets(void)
 					break;
 				case '#':
 					temp_cube.diffuse_material = glm::vec4(glm::vec3(0.8), 1.0);
+					temp_cube.specular_material = glm::vec4(glm::vec3(0.8), 1.0);
+					temp_cube.ambient_material = glm::vec4(glm::vec3(0.8), 1.0);
+					temp_cube.shininess = 12.0f;
 					temp_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
 					scene[std::string("bedna ").append(std::to_string(cols).append(";").append(std::to_string(rows)))] = 
 						temp_cube;
@@ -586,7 +598,7 @@ App::~App()
 	// clean-up GLFW
 	glfwTerminate();
 
-	std::cout << "Bye...\n";
+	std::cout << "Game Ended...\n";
 }
 
 void App::thread_code(void)
