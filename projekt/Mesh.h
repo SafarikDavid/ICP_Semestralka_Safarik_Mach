@@ -40,6 +40,7 @@ public:
 	glm::vec4 ambient_material;
 	glm::vec4 specular_material;
 	float shininess;
+	float alpha = 1.0f;
 	GLuint texture = 0;
 
 	glm::vec3 viewPos;
@@ -95,13 +96,23 @@ public:
 		// mesh_shader.setUniform("ambient_material", ambient_material);
 		mesh_shader.setUniform("specular_material", specular_material);
 		mesh_shader.setUniform("shininess", shininess);
+		mesh_shader.setUniform("alpha", alpha);
 
 		mesh_shader.setUniform("viewPos", viewPos);
 
-		mesh_shader.setUniform("uLightPos", glm::vec3(0.0f, 10.0f, 0.0f));
-		mesh_shader.setUniform("light.ambient", glm::vec3(0.4f));
-		mesh_shader.setUniform("light.diffuse", glm::vec3(0.7f));
-		mesh_shader.setUniform("light.specular", glm::vec3(1.0f));
+		// mesh_shader.setUniform("uLightPos", glm::vec3(5.0f, 10.0f, 5.0f));
+		// mesh_shader.setUniform("pointLight.position", glm::vec3(view_matrix * glm::vec4(glm::vec3(5.0f, 10.0f, 5.0f), 1.0))); // Transform world-space light position to view-space light position
+		mesh_shader.setUniform("pointLight.position", glm::vec3(5.0f, 10.0f, 5.0f));
+		mesh_shader.setUniform("pointLight.ambient", glm::vec3(1.0f));
+		mesh_shader.setUniform("pointLight.diffuse", glm::vec3(1.0f));
+		mesh_shader.setUniform("pointLight.specular", glm::vec3(1.0f));
+		mesh_shader.setUniform("pointLight.constant", 1.0f);
+		mesh_shader.setUniform("pointLight.linear", 0.045f);
+		mesh_shader.setUniform("pointLight.quadratic", 0.0075f);
+
+		mesh_shader.setUniform("ambientLight.ambient", glm::vec3(0.01f));
+		mesh_shader.setUniform("ambientLight.diffuse", glm::vec3(0.01f));
+		mesh_shader.setUniform("ambientLight.specular", glm::vec3(0.01f));
 
 		if (texture != 0)
 			glBindTexture(GL_TEXTURE_2D, texture);

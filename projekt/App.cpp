@@ -162,13 +162,14 @@ void App::init_assets(void)
 
 	auto end_cube = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/cube_triangles_normals_tex.obj");
 	end_cube.texture = texture_final_box;
+	std::string end_cube_identification;
 
 	// dynamic objects are initialized only partially
 	scene["cube"] = temp_cube;
 	scene["cube"].diffuse_material = glm::vec4(1.0f);
 	scene["cube"].specular_material = glm::vec4(1.0);
 	scene["cube"].ambient_material = glm::vec4(1.0);
-	scene["cube"].shininess = 12.0f;
+	scene["cube"].shininess = 3.0f;
 
 	//Labyrinth build
 	for (auto cols = 0; cols < mapa.cols; ++cols) {
@@ -181,9 +182,9 @@ void App::init_assets(void)
 					// end_cube.ambient_material = glm::vec4(glm::vec3(0.8, 0.4, 0.4), 1.0);
 					end_cube.specular_material = glm::vec4(1.0);
 					end_cube.shininess = 12.0f;
+					end_cube.alpha = 0.3f;
 					end_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
-					scene[std::string("bedna ").append(std::to_string(cols).append(";").append(std::to_string(rows)))] =
-						end_cube;
+					end_cube_identification = std::string("bedna konec");
 					break;
 				case 'X':
 					// player starting position
@@ -192,7 +193,7 @@ void App::init_assets(void)
 					// temp_cube.diffuse_material = glm::vec4(glm::vec3(0.8), 1.0);
 					// temp_cube.ambient_material = glm::vec4(glm::vec3(0.8), 1.0);
 					temp_cube.specular_material = glm::vec4(glm::vec3(0.8), 1.0);
-					temp_cube.shininess = 12.0f;
+					temp_cube.shininess = 3.0f;
 					temp_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
 					scene[std::string("bedna ").append(std::to_string(cols).append(";").append(std::to_string(rows)))] = 
 						temp_cube;
@@ -202,6 +203,7 @@ void App::init_assets(void)
 			}
 		}
 	}
+	scene[end_cube_identification] = end_cube;
 }
 
 GLuint App::loadTexture(char const* path)
@@ -508,6 +510,10 @@ int App::run(void)
 		glCullFace(GL_BACK);
 		glEnable(GL_CULL_FACE);
 
+		// Enable blending
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_POINT_SMOOTH);
 
@@ -566,10 +572,11 @@ int App::run(void)
 			scene["cube"].model_matrix = m_m;
 
 			//draw whole scene
-			for (auto scene_object : scene) {
+			for (auto& scene_object : scene) {
 				scene_object.second.viewPos = camera.Position;
 				scene_object.second.draw(projection_matrix, v_m);
 			}
+			scene["bedna konec"].draw(projection_matrix, v_m);
 
 			glfwSwapBuffers(window);
 			glfwPollEvents();
