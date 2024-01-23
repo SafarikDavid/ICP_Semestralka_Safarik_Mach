@@ -41,6 +41,8 @@ public:
 	glm::vec4 specular_material;
 	float shininess;
 	GLuint texture = 0;
+
+	glm::vec3 viewPos;
 	
 	ShaderProgram mesh_shader;
 
@@ -89,13 +91,17 @@ public:
 		mesh_shader.setUniform("uPm", projection_matrix);
 		mesh_shader.setUniform("uVm", view_matrix);
 		mesh_shader.setUniform("uMm", model_matrix);
-		mesh_shader.setUniform("diffuse_material", diffuse_material);
-		mesh_shader.setUniform("ambient_material", ambient_material);
+		// mesh_shader.setUniform("diffuse_material", diffuse_material);
+		// mesh_shader.setUniform("ambient_material", ambient_material);
 		mesh_shader.setUniform("specular_material", specular_material);
 		mesh_shader.setUniform("shininess", shininess);
 
+		mesh_shader.setUniform("viewPos", viewPos);
+
 		mesh_shader.setUniform("uLightPos", glm::vec3(0.0f, 10.0f, 0.0f));
-		mesh_shader.setUniform("uLightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+		mesh_shader.setUniform("light.ambient", glm::vec3(0.4f));
+		mesh_shader.setUniform("light.diffuse", glm::vec3(0.7f));
+		mesh_shader.setUniform("light.specular", glm::vec3(1.0f));
 
 		if (texture != 0)
 			glBindTexture(GL_TEXTURE_2D, texture);

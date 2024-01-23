@@ -143,6 +143,8 @@ void App::init_assets(void)
 {
 	GLuint texture_box = loadTexture("resources/textures/box_rgb888.png");
 	GLuint texture_floor = loadTexture("resources/textures/pavement.jpg");
+	//GLuint texture_final_box = loadTexture("resources/textures/brick_wall-red.png"); 
+	GLuint texture_final_box = loadTexture("resources/textures/scifi_floortile_spec.png");
 
 	//ShaderProgram s("resources/shaders/obj.vert", "resources/shaders/obj.frag");
 
@@ -158,6 +160,9 @@ void App::init_assets(void)
 	auto temp_cube = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/cube_triangles_normals_tex.obj");
 	temp_cube.texture = texture_box;
 
+	auto end_cube = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/cube_triangles_normals_tex.obj");
+	end_cube.texture = texture_final_box;
+
 	// dynamic objects are initialized only partially
 	scene["cube"] = temp_cube;
 	scene["cube"].diffuse_material = glm::vec4(1.0f);
@@ -172,21 +177,21 @@ void App::init_assets(void)
 				case '.':
 					break;
 				case 'e':
-					temp_cube.diffuse_material = glm::vec4(glm::vec3(0.8, 0.4, 0.4), 1.0);
-					temp_cube.specular_material = glm::vec4(glm::vec3(0.8, 0.4, 0.4), 1.0);
-					temp_cube.ambient_material = glm::vec4(glm::vec3(0.8, 0.4, 0.4), 1.0);
-					temp_cube.shininess = 12.0f;
-					temp_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
+					// end_cube.diffuse_material = glm::vec4(glm::vec3(0.8, 0.4, 0.4), 1.0);
+					// end_cube.ambient_material = glm::vec4(glm::vec3(0.8, 0.4, 0.4), 1.0);
+					end_cube.specular_material = glm::vec4(1.0);
+					end_cube.shininess = 12.0f;
+					end_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
 					scene[std::string("bedna ").append(std::to_string(cols).append(";").append(std::to_string(rows)))] =
-						temp_cube;
+						end_cube;
 					break;
 				case 'X':
 					// player starting position
 					break;
 				case '#':
-					temp_cube.diffuse_material = glm::vec4(glm::vec3(0.8), 1.0);
+					// temp_cube.diffuse_material = glm::vec4(glm::vec3(0.8), 1.0);
+					// temp_cube.ambient_material = glm::vec4(glm::vec3(0.8), 1.0);
 					temp_cube.specular_material = glm::vec4(glm::vec3(0.8), 1.0);
-					temp_cube.ambient_material = glm::vec4(glm::vec3(0.8), 1.0);
 					temp_cube.shininess = 12.0f;
 					temp_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
 					scene[std::string("bedna ").append(std::to_string(cols).append(";").append(std::to_string(rows)))] = 
@@ -561,8 +566,10 @@ int App::run(void)
 			scene["cube"].model_matrix = m_m;
 
 			//draw whole scene
-			for (auto& m : scene)
-				m.second.draw(projection_matrix, v_m);
+			for (auto scene_object : scene) {
+				scene_object.second.viewPos = camera.Position;
+				scene_object.second.draw(projection_matrix, v_m);
+			}
 
 			glfwSwapBuffers(window);
 			glfwPollEvents();
