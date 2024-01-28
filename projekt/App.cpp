@@ -571,13 +571,8 @@ int App::run(void)
 			m_m = glm::rotate(m_m, static_cast<float>(glfwGetTime()), glm::vec3(0.0f, 0.1f, 0.0f)); //rotate around axis Y
 			scene["cube"].model_matrix = m_m;
 
-			////draw whole scene
-			//for (auto& scene_object : scene) {
-			//	scene_object.second.viewPos = camera.Position;
-			//	scene_object.second.draw(projection_matrix, v_m);
-			//}
-			//scene["bedna konec"].draw(projection_matrix, v_m);
-			// Draw all objects except "bedna konec"
+
+			// Draw all objects except end point ("bedna konec")
 			for (auto& scene_object : scene) {
 				if (scene_object.first != "bedna konec") {
 					scene_object.second.viewPos = camera.Position;
@@ -585,11 +580,11 @@ int App::run(void)
 				}
 			}
 
-			// Draw "bedna konec" last
-			auto bedna_konec_iter = scene.find("bedna konec");
-			if (bedna_konec_iter != scene.end()) {
-				bedna_konec_iter->second.viewPos = camera.Position;
-				bedna_konec_iter->second.draw(projection_matrix, v_m);
+			// Draw end point last
+			auto end_point_iter = scene.find("bedna konec");
+			if (end_point_iter != scene.end()) {
+				end_point_iter->second.viewPos = camera.Position;
+				end_point_iter->second.draw(projection_matrix, v_m);
 			}
 
 			glfwSwapBuffers(window);
