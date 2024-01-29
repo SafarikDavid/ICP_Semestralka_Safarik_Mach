@@ -576,6 +576,7 @@ int App::run(void)
 			for (auto& scene_object : scene) {
 				if (scene_object.first != "bedna konec") {
 					scene_object.second.viewPos = camera.Position;
+					scene_object.second.viewFront = camera.Front;
 					scene_object.second.draw(projection_matrix, v_m);
 				}
 			}
@@ -584,6 +585,7 @@ int App::run(void)
 			auto end_point_iter = scene.find("bedna konec");
 			if (end_point_iter != scene.end()) {
 				end_point_iter->second.viewPos = camera.Position;
+				end_point_iter->second.viewFront = camera.Front;
 				end_point_iter->second.draw(projection_matrix, v_m);
 			}
 
@@ -594,6 +596,8 @@ int App::run(void)
 			framecnt++;
 			if ((now - last_framecnt_time) >= 1.0) {
 				std::cout << "[FPS] " << framecnt << '\n';
+				std::cout << "Pos: " << camera.Position[0] << " " << camera.Position[1] << " " << camera.Position[2] << '\n';
+				std::cout << "Front: " << camera.Front[0] << " " << camera.Front[1] << " " << camera.Front[2] << '\n';
 				last_framecnt_time = now;
 				framecnt = 0;
 			}

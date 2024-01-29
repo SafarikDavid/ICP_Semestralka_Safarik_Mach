@@ -22,6 +22,23 @@ struct PointLight {
 
 uniform PointLight pointLight;
 
+struct SpotLight {
+    vec3  position;
+    vec3  direction;
+    float cutOff;
+    float outerCutOff;
+  
+    float constant;
+    float linear;
+    float quadratic;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+uniform SpotLight spotLight;
+
 //uniform vec4 diffuse_material;
 //uniform vec4 ambient_material;
 uniform vec4 specular_material;
@@ -78,6 +95,37 @@ vec3 calculatePointLighting(PointLight light, vec3 norm, vec3 fragPos, vec3 view
     return ambient + diffuse + specular;
 }
 
+vec3 calculateSpotLighting(SpotLight light, vec3 norm, vec3 fragPos, vec3 viewDir){
+    vec3 lightDir = normalize(light.position - fragPos);
+
+    // ambient
+    vec3 ambient = vec3(texture(ourTexture, texcoord)) * light.ambient;
+ 
+    // diffuse 
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = diff * vec3(texture(ourTexture, texcoord)) * light.diffuse;
+
+    // specular
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+    vec3 specular = vec3(specular_material) * spec * light.specular; 
+    
+    // attenuation
+    float distance = length(light.position - fragPos);
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));   
+    
+    // spotlight intensity
+    float theta = dot(lightDir, normalize(-light.direction)); 
+    float epsilon = light.cutOff - light.outerCutOff;
+    float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+
+    ambient *= attenuation * intensity;
+    diffuse *= attenuation * intensity;
+    specular *= attenuation * intensity;
+
+    return (ambient + diffuse + specular);
+}
+
 void main()
 {
     // properties
@@ -88,6 +136,7 @@ void main()
 
     outputColor += calculateAmbientLighting(ambientLight);
     outputColor += calculatePointLighting(pointLight, norm, fragPos, viewDir);
+    outputColor += calculateSpotLighting(spotLight, norm, fragPos, viewDir);
     
     FragColor = vec4(outputColor, alpha);
 }

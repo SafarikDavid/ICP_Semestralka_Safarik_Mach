@@ -44,6 +44,7 @@ public:
 	GLuint texture = 0;
 
 	glm::vec3 viewPos;
+	glm::vec3 viewFront;
 	
 	ShaderProgram mesh_shader;
 
@@ -101,18 +102,34 @@ public:
 		mesh_shader.setUniform("viewPos", viewPos);
 
 		// mesh_shader.setUniform("uLightPos", glm::vec3(5.0f, 10.0f, 5.0f));
-		// mesh_shader.setUniform("pointLight.position", glm::vec3(view_matrix * glm::vec4(glm::vec3(5.0f, 10.0f, 5.0f), 1.0))); // Transform world-space light position to view-space light position
-		mesh_shader.setUniform("pointLight.position", glm::vec3(5.0f, 10.0f, 5.0f));
-		mesh_shader.setUniform("pointLight.ambient", glm::vec3(1.0f));
-		mesh_shader.setUniform("pointLight.diffuse", glm::vec3(1.0f));
-		mesh_shader.setUniform("pointLight.specular", glm::vec3(1.0f));
+		mesh_shader.setUniform("pointLight.position", glm::vec3(view_matrix * glm::vec4(glm::vec3(5.0f, 10.0f, 5.0f), 1.0))); // Transform world-space light position to view-space light position
+		// mesh_shader.setUniform("pointLight.position", glm::vec3(5.0f, 10.0f, 5.0f));
+		mesh_shader.setUniform("pointLight.ambient", glm::vec3(.0f));
+		mesh_shader.setUniform("pointLight.diffuse", glm::vec3(.0f));
+		mesh_shader.setUniform("pointLight.specular", glm::vec3(.0f));
 		mesh_shader.setUniform("pointLight.constant", 1.0f);
 		mesh_shader.setUniform("pointLight.linear", 0.045f);
 		mesh_shader.setUniform("pointLight.quadratic", 0.0075f);
 
-		mesh_shader.setUniform("ambientLight.ambient", glm::vec3(0.01f));
-		mesh_shader.setUniform("ambientLight.diffuse", glm::vec3(0.01f));
-		mesh_shader.setUniform("ambientLight.specular", glm::vec3(0.01f));
+		mesh_shader.setUniform("ambientLight.ambient", glm::vec3(0.0f));
+		mesh_shader.setUniform("ambientLight.diffuse", glm::vec3(0.0f));
+		mesh_shader.setUniform("ambientLight.specular", glm::vec3(0.0f));
+
+		// Spotlight - Fleshlight
+		mesh_shader.setUniform("spotLight.position", glm::vec3(view_matrix * glm::vec4(viewPos, 1.0)));
+		mesh_shader.setUniform("spotLight.direction", viewFront);
+
+		mesh_shader.setUniform("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+		mesh_shader.setUniform("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
+
+		mesh_shader.setUniform("spotLight.ambient", glm::vec3(1.0f));
+		mesh_shader.setUniform("spotLight.diffuse", glm::vec3(1.0f));
+		mesh_shader.setUniform("spotLight.specular", glm::vec3(1.0f));
+
+		mesh_shader.setUniform("spotLight.constant", 1.0f);
+		mesh_shader.setUniform("spotLight.linear", 0.007f);
+		mesh_shader.setUniform("spotLight.quadratic", 0.0002f);
+
 
 		if (texture != 0)
 			glBindTexture(GL_TEXTURE_2D, texture);
