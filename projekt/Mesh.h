@@ -45,7 +45,7 @@ public:
 
 	glm::vec3 viewPos;
 	glm::vec3 viewFront;
-	
+
 	ShaderProgram mesh_shader;
 
 	Mesh(void) = default;
@@ -90,34 +90,36 @@ public:
 
 	void draw(const glm::mat4 & projection_matrix, const glm::mat4 & view_matrix, const glm::mat4 & model_matrix) {
 		mesh_shader.activate();
+		// P,V,M
 		mesh_shader.setUniform("uPm", projection_matrix);
 		mesh_shader.setUniform("uVm", view_matrix);
 		mesh_shader.setUniform("uMm", model_matrix);
 		// mesh_shader.setUniform("diffuse_material", diffuse_material);
 		// mesh_shader.setUniform("ambient_material", ambient_material);
+		// Material
 		mesh_shader.setUniform("specular_material", specular_material);
 		mesh_shader.setUniform("shininess", shininess);
 		mesh_shader.setUniform("alpha", alpha);
 
 		mesh_shader.setUniform("viewPos", viewPos);
 
-		// mesh_shader.setUniform("uLightPos", glm::vec3(5.0f, 10.0f, 5.0f));
 		mesh_shader.setUniform("pointLight.position", glm::vec3(view_matrix * glm::vec4(glm::vec3(5.0f, 10.0f, 5.0f), 1.0))); // Transform world-space light position to view-space light position
 		// mesh_shader.setUniform("pointLight.position", glm::vec3(5.0f, 10.0f, 5.0f));
-		mesh_shader.setUniform("pointLight.ambient", glm::vec3(.0f));
-		mesh_shader.setUniform("pointLight.diffuse", glm::vec3(.0f));
-		mesh_shader.setUniform("pointLight.specular", glm::vec3(.0f));
+		mesh_shader.setUniform("pointLight.ambient", glm::vec3(.5f));
+		mesh_shader.setUniform("pointLight.diffuse", glm::vec3(.5f));
+		mesh_shader.setUniform("pointLight.specular", glm::vec3(.5f));
 		mesh_shader.setUniform("pointLight.constant", 1.0f);
 		mesh_shader.setUniform("pointLight.linear", 0.045f);
 		mesh_shader.setUniform("pointLight.quadratic", 0.0075f);
 
-		mesh_shader.setUniform("ambientLight.ambient", glm::vec3(0.0f));
-		mesh_shader.setUniform("ambientLight.diffuse", glm::vec3(0.0f));
-		mesh_shader.setUniform("ambientLight.specular", glm::vec3(0.0f));
+		// Ambient light
+		mesh_shader.setUniform("ambientLight.ambient", glm::vec3(0.05f));
+		mesh_shader.setUniform("ambientLight.diffuse", glm::vec3(0.05f));
+		mesh_shader.setUniform("ambientLight.specular", glm::vec3(0.05f));
 
 		// Spotlight - Fleshlight
 		mesh_shader.setUniform("spotLight.position", glm::vec3(view_matrix * glm::vec4(viewPos, 1.0)));
-		mesh_shader.setUniform("spotLight.direction", viewFront);
+		mesh_shader.setUniform("spotLight.direction", glm::vec3(view_matrix * glm::vec4(viewFront, 0.0)));
 
 		mesh_shader.setUniform("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
 		mesh_shader.setUniform("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
@@ -127,8 +129,14 @@ public:
 		mesh_shader.setUniform("spotLight.specular", glm::vec3(1.0f));
 
 		mesh_shader.setUniform("spotLight.constant", 1.0f);
-		mesh_shader.setUniform("spotLight.linear", 0.007f);
-		mesh_shader.setUniform("spotLight.quadratic", 0.0002f);
+		mesh_shader.setUniform("spotLight.linear", 0.22f);
+		mesh_shader.setUniform("spotLight.quadratic", 0.20f);
+
+		// Directional light - Sun
+		mesh_shader.setUniform("directionalLight.direction", glm::vec3(view_matrix * glm::vec4(glm::vec3(-0.2f, -1.0f, -0.3f), 0.0)));
+		mesh_shader.setUniform("directionalLight.ambient", glm::vec3(0.1f));
+		mesh_shader.setUniform("directionalLight.diffuse", glm::vec3(0.2f));
+		mesh_shader.setUniform("directionalLight.specular", glm::vec3(0.3f));
 
 
 		if (texture != 0)

@@ -141,6 +141,7 @@ void App::init_gl_debug()
 
 void App::init_assets(void)
 {
+
 	GLuint texture_box = loadTexture("resources/textures/box_rgb888.png");
 	GLuint texture_floor = loadTexture("resources/textures/pavement.jpg");
 	//GLuint texture_final_box = loadTexture("resources/textures/brick_wall-red.png"); 
@@ -164,12 +165,14 @@ void App::init_assets(void)
 	end_cube.texture = texture_final_box;
 	std::string end_cube_identification;
 
+
 	// dynamic objects are initialized only partially
 	scene["cube"] = temp_cube;
 	scene["cube"].diffuse_material = glm::vec4(1.0f);
 	scene["cube"].specular_material = glm::vec4(1.0);
 	scene["cube"].ambient_material = glm::vec4(1.0);
 	scene["cube"].shininess = 3.0f;
+
 
 	//Labyrinth build
 	for (auto cols = 0; cols < mapa.cols; ++cols) {
@@ -181,7 +184,7 @@ void App::init_assets(void)
 					// end_cube.diffuse_material = glm::vec4(glm::vec3(0.8, 0.4, 0.4), 1.0);
 					// end_cube.ambient_material = glm::vec4(glm::vec3(0.8, 0.4, 0.4), 1.0);
 					end_cube.specular_material = glm::vec4(1.0);
-					end_cube.shininess = 12.0f;
+					end_cube.shininess = 0.0f;
 					end_cube.alpha = 0.3f;
 					end_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
 					end_cube_identification = std::string("bedna konec");
@@ -193,7 +196,7 @@ void App::init_assets(void)
 					// temp_cube.diffuse_material = glm::vec4(glm::vec3(0.8), 1.0);
 					// temp_cube.ambient_material = glm::vec4(glm::vec3(0.8), 1.0);
 					temp_cube.specular_material = glm::vec4(glm::vec3(0.8), 1.0);
-					temp_cube.shininess = 3.0f;
+					temp_cube.shininess = 0.5f;
 					temp_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
 					scene[std::string("bedna ").append(std::to_string(cols).append(";").append(std::to_string(rows)))] = 
 						temp_cube;

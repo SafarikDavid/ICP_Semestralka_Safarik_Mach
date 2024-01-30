@@ -98,11 +98,8 @@ public:
 
     void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constraintPitch = GL_TRUE)
     {
-        xoffset *= this->MouseSensitivity;
-        yoffset *= this->MouseSensitivity;
-
-        this->Yaw   += xoffset;
-        this->Pitch += yoffset;
+        this->Yaw   += xoffset * this->MouseSensitivity;
+        this->Pitch += yoffset * this->MouseSensitivity;
 
         if (constraintPitch)
         {

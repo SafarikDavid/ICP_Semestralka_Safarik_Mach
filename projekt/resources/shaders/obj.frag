@@ -39,6 +39,16 @@ struct SpotLight {
 
 uniform SpotLight spotLight;
 
+struct DirectionalLight{
+    vec3 direction;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+uniform DirectionalLight directionalLight;
+
 //uniform vec4 diffuse_material;
 //uniform vec4 ambient_material;
 uniform vec4 specular_material;
@@ -126,6 +136,24 @@ vec3 calculateSpotLighting(SpotLight light, vec3 norm, vec3 fragPos, vec3 viewDi
     return (ambient + diffuse + specular);
 }
 
+vec3 calculateDirectionalLighting(DirectionalLight light, vec3 norm, vec3 fragPos, vec3 viewDir){
+    vec3 lightDir = normalize(-light.direction);
+
+    // ambient
+    vec3 ambient = vec3(texture(ourTexture, texcoord)) * light.ambient;
+ 
+    // diffuse 
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = diff * vec3(texture(ourTexture, texcoord)) * light.diffuse;
+
+    // specular
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+    vec3 specular = vec3(specular_material) * spec * light.specular; 
+
+    return (ambient + diffuse + specular);
+}
+
 void main()
 {
     // properties
@@ -137,6 +165,7 @@ void main()
     outputColor += calculateAmbientLighting(ambientLight);
     outputColor += calculatePointLighting(pointLight, norm, fragPos, viewDir);
     outputColor += calculateSpotLighting(spotLight, norm, fragPos, viewDir);
-    
+    outputColor += calculateDirectionalLighting(directionalLight, norm, fragPos, viewDir);    
+
     FragColor = vec4(outputColor, alpha);
 }
