@@ -146,8 +146,18 @@ void App::init_assets(void)
 	GLuint texture_floor = loadTexture("resources/textures/pavement.jpg");
 	//GLuint texture_final_box = loadTexture("resources/textures/brick_wall-red.png"); 
 	GLuint texture_final_box = loadTexture("resources/textures/scifi_floortile_spec.png");
+	GLuint texture_bunny = loadTexture("resources/textures/brick_wall-red.png");
 
 	//ShaderProgram s("resources/shaders/obj.vert", "resources/shaders/obj.frag");
+
+	//scene["bunny"] = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/female_secretary/female_secretary.fbx");
+	scene["bunny"] = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/bunny_tri_vnt.obj");
+	scene["bunny"].model_matrix = glm::scale(glm::translate(glm::identity<glm::mat4>(), glm::vec3(0, 2, 0)), glm::vec3(1.2f));
+	scene["bunny"].diffuse_material = glm::vec4(glm::vec3(0.8), 1.0);
+	scene["bunny"].specular_material = glm::vec4(glm::vec3(0.8), 1.0);
+	scene["bunny"].ambient_material = glm::vec4(glm::vec3(0.8), 1.0);
+	scene["bunny"].shininess = 32.0f;
+	scene["bunny"].texture = texture_bunny;
 
 	// fully static objects - initialize all (including position) in init_assets()
 	scene["plane"] = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/plane_tri_vnt.obj");
