@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 // OpenGL Extension Wrangler
 #include <GL/glew.h> 
@@ -153,6 +154,21 @@ public:
 
 	void draw(const glm::mat4& projection_matrix, const glm::mat4& view_matrix) {
 		this->draw(projection_matrix, view_matrix, this->model_matrix);
+	}
+
+	glm::vec3 calculateDimensions(float scale = 1.0f){
+		glm::vec3 firstPos = vertices[0].position;
+		float minX = firstPos.x, minY = firstPos.y, minZ = firstPos.z, maxX = firstPos.x, maxY = firstPos.y, maxZ = firstPos.z;
+		for (const vertex vert : vertices) {
+			minX = (vert.position.x < minX) ? vert.position.x : minX;
+			minY = (vert.position.y < minY) ? vert.position.y : minY;
+			minZ = (vert.position.z < minZ) ? vert.position.z : minZ;
+
+			maxX = (vert.position.x > maxX) ? vert.position.x : maxX;
+			maxY = (vert.position.y > maxY) ? vert.position.y : maxY;
+			maxZ = (vert.position.z > maxZ) ? vert.position.z : maxZ;
+		}
+		return glm::vec3(maxX - minX, maxY - minY, maxZ - minZ)*scale;
 	}
 
 private:

@@ -119,7 +119,7 @@ bool App::init()
 
 		std::cout << mapa;
 
-		init_assets();
+	init_assets();
 	}
 	catch (std::exception const& e) {
 		std::cerr << "Init failed : " << e.what() << std::endl;
@@ -141,32 +141,43 @@ void App::init_gl_debug()
 
 void App::init_assets(void)
 {
+	playerObject.dimensions = glm::vec3(0.5);
 
 	GLuint texture_box = loadTexture("resources/textures/box_rgb888.png");
 	GLuint texture_floor = loadTexture("resources/textures/pavement.jpg");
 	//GLuint texture_final_box = loadTexture("resources/textures/brick_wall-red.png"); 
 	GLuint texture_final_box = loadTexture("resources/textures/scifi_floortile_spec.png");
 	GLuint texture_bunny = loadTexture("resources/textures/brick_wall-red.png");
+	GLuint texture_ball = loadTexture("resources/textures/green_metal_rust.jpg");
+
 
 	//ShaderProgram s("resources/shaders/obj.vert", "resources/shaders/obj.frag");
 
 	//scene["bunny"] = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/female_secretary/female_secretary.fbx");
-	scene["bunny"] = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/bunny_tri_vnt.obj");
-	scene["bunny"].model_matrix = glm::scale(glm::translate(glm::identity<glm::mat4>(), glm::vec3(0, 2, 0)), glm::vec3(1.2f));
-	scene["bunny"].diffuse_material = glm::vec4(glm::vec3(0.8), 1.0);
-	scene["bunny"].specular_material = glm::vec4(glm::vec3(0.8), 1.0);
-	scene["bunny"].ambient_material = glm::vec4(glm::vec3(0.8), 1.0);
-	scene["bunny"].shininess = 32.0f;
-	scene["bunny"].texture = texture_bunny;
+	scene["bunny"].mesh = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/bunny_tri_vnt.obj");
+	scene["bunny"].position = glm::vec3(0, 2, 0);
+	scene["bunny"].dimensions = scene["bunny"].mesh.calculateDimensions(0.2f);
+	scene["bunny"].mesh.model_matrix = glm::scale(glm::translate(glm::identity<glm::mat4>(), scene["bunny"].position), glm::vec3(0.2f));
+	scene["bunny"].mesh.specular_material = glm::vec4(glm::vec3(0.8), 1.0);
+	scene["bunny"].mesh.shininess = 32.0f;
+	scene["bunny"].mesh.texture = texture_bunny;
+
+	scene["ball"].mesh = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/teapot_tri_vnt.obj");
+	scene["ball"].position = glm::vec3(0, 2, 5);
+	scene["ball"].dimensions = scene["ball"].mesh.calculateDimensions();
+	scene["ball"].mesh.model_matrix = glm::scale(glm::translate(glm::identity<glm::mat4>(), scene["ball"].position), glm::vec3(1.f));
+	scene["ball"].mesh.specular_material = glm::vec4(glm::vec3(0.8), 1.0);
+	scene["ball"].mesh.shininess = 32.0f;
+	scene["ball"].mesh.texture = texture_ball;
 
 	// fully static objects - initialize all (including position) in init_assets()
-	scene["plane"] = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/plane_tri_vnt.obj");
-	scene["plane"].model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(5, 0, 5));
-	scene["plane"].diffuse_material = glm::vec4(glm::vec3(0.8), 1.0);
-	scene["plane"].specular_material = glm::vec4(glm::vec3(0.8), 1.0);
-	scene["plane"].ambient_material = glm::vec4(glm::vec3(0.8), 1.0);
-	scene["plane"].shininess = 32.0f;
-	scene["plane"].texture = texture_floor;
+	scene["plane"].mesh = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/plane_tri_vnt.obj");
+	scene["plane"].position = glm::vec3(5, 0, 5);
+	scene["plane"].dimensions = scene["plane"].mesh.calculateDimensions();
+	scene["plane"].mesh.model_matrix = glm::scale(glm::translate(glm::identity<glm::mat4>(), scene["plane"].position), glm::vec3(1.f));
+	scene["plane"].mesh.specular_material = glm::vec4(glm::vec3(0.8), 1.0);
+	scene["plane"].mesh.shininess = 32.0f;
+	scene["plane"].mesh.texture = texture_floor;
 
 	auto temp_cube = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/cube_triangles_normals_tex.obj");
 	temp_cube.texture = texture_box;
@@ -177,13 +188,11 @@ void App::init_assets(void)
 
 
 	// dynamic objects are initialized only partially
-	scene["cube"] = temp_cube;
-	scene["cube"].diffuse_material = glm::vec4(1.0f);
-	scene["cube"].specular_material = glm::vec4(1.0);
-	scene["cube"].ambient_material = glm::vec4(1.0);
-	scene["cube"].shininess = 3.0f;
+	scene["cube"].mesh = temp_cube;
+	scene["cube"].mesh.specular_material = glm::vec4(1.0);
+	scene["cube"].mesh.shininess = 3.0f;
 
-
+	std::string key_val;
 	//Labyrinth build
 	for (auto cols = 0; cols < mapa.cols; ++cols) {
 		for (auto rows = 0; rows < mapa.rows; ++rows) {
@@ -198,25 +207,29 @@ void App::init_assets(void)
 					end_cube.alpha = 0.3f;
 					end_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
 					end_cube_identification = std::string("bedna konec");
+					scene[end_cube_identification].mesh = end_cube;
+					scene[end_cube_identification].position = glm::vec3(cols, 0.5f, rows);
+					scene[end_cube_identification].dimensions = scene[end_cube_identification].mesh.calculateDimensions();
 					break;
 				case 'X':
 					// player starting position
 					break;
 				case '#':
+					key_val = std::string("bedna ").append(std::to_string(cols).append(";").append(std::to_string(rows)));
 					// temp_cube.diffuse_material = glm::vec4(glm::vec3(0.8), 1.0);
 					// temp_cube.ambient_material = glm::vec4(glm::vec3(0.8), 1.0);
 					temp_cube.specular_material = glm::vec4(glm::vec3(0.8), 1.0);
 					temp_cube.shininess = 0.5f;
 					temp_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
-					scene[std::string("bedna ").append(std::to_string(cols).append(";").append(std::to_string(rows)))] = 
-						temp_cube;
+					scene[key_val].mesh = temp_cube;
+					scene[key_val].position = glm::vec3(cols, 0.5f, rows);
+					scene[key_val].dimensions = scene[key_val].mesh.calculateDimensions();
 					break;
 				default:
 					break;
 			}
 		}
 	}
-	scene[end_cube_identification] = end_cube;
 }
 
 GLuint App::loadTexture(char const* path)
@@ -508,6 +521,15 @@ void App::genLabyrinth(cv::Mat& map) {
 	camera.Position.y = camera.camera_height;
 }
 
+bool App::checkCollision(const GameObject& obj1, const GameObject& obj2){
+	return (obj1.position.x < obj2.position.x + obj2.dimensions.x &&
+		obj1.position.x + obj1.dimensions.x > obj2.position.x &&
+		obj1.position.y < obj2.position.y + obj2.dimensions.y &&
+		obj1.position.y + obj1.dimensions.y > obj2.position.y &&
+		obj1.position.z < obj2.position.z + obj2.dimensions.z &&
+		obj1.position.z + obj1.dimensions.z > obj2.position.z);
+}
+
 int App::run(void)
 {
 	try {
@@ -538,6 +560,9 @@ int App::run(void)
 		lastX = width/2;
 		lastY = height/2;
 
+		// update position of player object
+		playerObject.position = camera.Position;
+
 		cv::Point2f tracker_normalized_center{ 0 };
 		while (!glfwWindowShouldClose(window))
 		{
@@ -560,10 +585,27 @@ int App::run(void)
 			camera.Position.z += offset.z;
 			if (camera.Position.y + offset.y < 0.0 + camera.camera_height) {
 				camera.Position.y = 0.0f + camera.camera_height;
+				offset.y = 0;
 			}
 			else {
 				camera.Position.y += offset.y;
 			}
+
+			// update position of player object
+			playerObject.position = camera.Position;
+
+			// collision detection loop
+			for (auto& scene_object : scene) {
+				if (checkCollision(playerObject, scene_object.second)) {
+					camera.Position.x -= offset.x;
+					camera.Position.z -= offset.z;
+					camera.Position.y -= offset.y;
+					break;
+				}
+			}
+
+			// update position of player object again after checking collisions
+			playerObject.position = camera.Position;
 
 			// process mouse movements
 			camera.ProcessMouseMovement(xoffset, yoffset);
@@ -582,24 +624,24 @@ int App::run(void)
 			m_m = glm::translate(m_m, glm::vec3(0, 0.5f, 0)); // move cube UP by half of its size (1.0), so it is not buried
 			m_m = glm::translate(m_m, 10.0f * glm::vec3(tracker_normalized_center.x, 0.0f, tracker_normalized_center.y)); //move according to tracker
 			m_m = glm::rotate(m_m, static_cast<float>(glfwGetTime()), glm::vec3(0.0f, 0.1f, 0.0f)); //rotate around axis Y
-			scene["cube"].model_matrix = m_m;
+			scene["cube"].mesh.model_matrix = m_m;
 
 
 			// Draw all objects except end point ("bedna konec")
 			for (auto& scene_object : scene) {
 				if (scene_object.first != "bedna konec") {
-					scene_object.second.viewPos = camera.Position;
-					scene_object.second.viewFront = camera.Front;
-					scene_object.second.draw(projection_matrix, v_m);
+					scene_object.second.mesh.viewPos = camera.Position;
+					scene_object.second.mesh.viewFront = camera.Front;
+					scene_object.second.mesh.draw(projection_matrix, v_m);
 				}
 			}
 
 			// Draw end point last
 			auto end_point_iter = scene.find("bedna konec");
 			if (end_point_iter != scene.end()) {
-				end_point_iter->second.viewPos = camera.Position;
-				end_point_iter->second.viewFront = camera.Front;
-				end_point_iter->second.draw(projection_matrix, v_m);
+				end_point_iter->second.mesh.viewPos = camera.Position;
+				end_point_iter->second.mesh.viewFront = camera.Front;
+				end_point_iter->second.mesh.draw(projection_matrix, v_m);
 			}
 
 			glfwSwapBuffers(window);

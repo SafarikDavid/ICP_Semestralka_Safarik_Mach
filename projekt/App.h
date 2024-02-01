@@ -14,6 +14,13 @@
 #include "Mesh.h"
 #include "stb_image.h"
 
+
+struct GameObject {
+    glm::vec3 position = glm::vec3(0.);
+    glm::vec3 dimensions = glm::vec3(1.0);
+    Mesh mesh;
+};
+
 // our application class 
 class App {
 public:
@@ -64,6 +71,8 @@ private:
     uchar getmap(cv::Mat& map, int x, int y);
     void genLabyrinth(cv::Mat& map);
 
+    bool checkCollision(const GameObject& obj1, const GameObject& obj2);
+
     cv::Mat mapa = cv::Mat(11, 11, CV_8U); // unsigned char
 
     cv::VideoCapture capture;
@@ -87,7 +96,9 @@ private:
 
     bool isFullscreen = false;
     
-    std::unordered_map<std::string, Mesh> scene;
+    std::unordered_map<std::string, GameObject> scene;
+
+    GameObject playerObject;
 };
 
 
