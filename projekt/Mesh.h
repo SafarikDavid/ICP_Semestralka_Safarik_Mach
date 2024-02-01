@@ -41,7 +41,6 @@ public:
 	glm::vec4 ambient_material;
 	glm::vec4 specular_material;
 	float shininess;
-	float alpha = 1.0f;
 	GLuint texture = 0;
 
 	glm::vec3 viewPos;
@@ -100,7 +99,6 @@ public:
 		// Material
 		mesh_shader.setUniform("specular_material", specular_material);
 		mesh_shader.setUniform("shininess", shininess);
-		mesh_shader.setUniform("alpha", alpha);
 
 		mesh_shader.setUniform("viewPos", viewPos);
 
@@ -118,7 +116,7 @@ public:
 		mesh_shader.setUniform("ambientLight.diffuse", glm::vec3(0.05f));
 		mesh_shader.setUniform("ambientLight.specular", glm::vec3(0.05f));
 
-		// Spotlight - Fleshlight
+		// Spotlight - Flashlight
 		mesh_shader.setUniform("spotLight.position", glm::vec3(view_matrix * glm::vec4(viewPos, 1.0)));
 		mesh_shader.setUniform("spotLight.direction", glm::vec3(view_matrix * glm::vec4(viewFront, 0.0)));
 
@@ -139,7 +137,7 @@ public:
 		mesh_shader.setUniform("directionalLight.diffuse", glm::vec3(0.2f));
 		mesh_shader.setUniform("directionalLight.specular", glm::vec3(0.3f));
 
-
+		// bind texture
 		if (texture != 0)
 			glBindTexture(GL_TEXTURE_2D, texture);
 		glActiveTexture(GL_TEXTURE0);

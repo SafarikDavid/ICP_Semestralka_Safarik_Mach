@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
+
 #include "App.h"
 
 App::App()
@@ -146,7 +147,7 @@ void App::init_assets(void)
 	GLuint texture_box = loadTexture("resources/textures/box_rgb888.png");
 	GLuint texture_floor = loadTexture("resources/textures/pavement.jpg");
 	//GLuint texture_final_box = loadTexture("resources/textures/brick_wall-red.png"); 
-	GLuint texture_final_box = loadTexture("resources/textures/scifi_floortile_spec.png");
+	GLuint texture_final_box = loadTexture("resources/textures/window.png");
 	GLuint texture_bunny = loadTexture("resources/textures/brick_wall-red.png");
 	GLuint texture_ball = loadTexture("resources/textures/green_metal_rust.jpg");
 
@@ -164,8 +165,8 @@ void App::init_assets(void)
 
 	scene["ball"].mesh = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/teapot_tri_vnt.obj");
 	scene["ball"].position = glm::vec3(0, 2, 5);
-	scene["ball"].dimensions = scene["ball"].mesh.calculateDimensions();
-	scene["ball"].mesh.model_matrix = glm::scale(glm::translate(glm::identity<glm::mat4>(), scene["ball"].position), glm::vec3(1.f));
+	scene["ball"].dimensions = scene["ball"].mesh.calculateDimensions(0.2);
+	scene["ball"].mesh.model_matrix = glm::scale(glm::translate(glm::identity<glm::mat4>(), scene["ball"].position), glm::vec3(0.2f));
 	scene["ball"].mesh.specular_material = glm::vec4(glm::vec3(0.8), 1.0);
 	scene["ball"].mesh.shininess = 32.0f;
 	scene["ball"].mesh.texture = texture_ball;
@@ -176,7 +177,7 @@ void App::init_assets(void)
 	scene["plane"].dimensions = scene["plane"].mesh.calculateDimensions();
 	scene["plane"].mesh.model_matrix = glm::scale(glm::translate(glm::identity<glm::mat4>(), scene["plane"].position), glm::vec3(1.f));
 	scene["plane"].mesh.specular_material = glm::vec4(glm::vec3(0.8), 1.0);
-	scene["plane"].mesh.shininess = 32.0f;
+	scene["plane"].mesh.shininess = 1.0f;
 	scene["plane"].mesh.texture = texture_floor;
 
 	auto temp_cube = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/cube_triangles_normals_tex.obj");
@@ -203,8 +204,7 @@ void App::init_assets(void)
 					// end_cube.diffuse_material = glm::vec4(glm::vec3(0.8, 0.4, 0.4), 1.0);
 					// end_cube.ambient_material = glm::vec4(glm::vec3(0.8, 0.4, 0.4), 1.0);
 					end_cube.specular_material = glm::vec4(1.0);
-					end_cube.shininess = 0.0f;
-					end_cube.alpha = 0.3f;
+					end_cube.shininess = 0.5f;
 					end_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
 					end_cube_identification = std::string("bedna konec");
 					scene[end_cube_identification].mesh = end_cube;
