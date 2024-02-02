@@ -3,9 +3,17 @@
 #include <GL/glew.h> 
 #include <glm/glm.hpp>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include "OBJloader.h"
+#include "Mesh.h"
+
+
 
 #define MAX_LINE_SIZE 255
+
 
 bool loadOBJ(const std::filesystem::path& path, std::vector < glm::vec3 > & out_vertices, std::vector < glm::vec2 > & out_uvs, std::vector < glm::vec3 > & out_normals)
 {
@@ -91,5 +99,64 @@ bool loadOBJ(const std::filesystem::path& path, std::vector < glm::vec3 > & out_
 	}
 
 	fclose(file);
+	return true;
+}
+
+bool loadOBJ(const std::filesystem::path& path, std::vector < glm::vec3 >& out_vertices, std::vector < glm::vec2 >& out_uvs, std::vector < glm::vec3 >& out_normals, std::vector<GLuint>& out_indices)
+{
+	//std::vector< unsigned int > temp_indices;
+	//std::vector< glm::vec3 > temp_vertices;
+	//std::vector< glm::vec2 > temp_uvs;
+	//std::vector< glm::vec3 > temp_normals;
+
+	out_vertices.clear();
+	out_uvs.clear();
+	out_normals.clear();
+	out_indices.clear();
+
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(path.string(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+	{
+		std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+		return false;
+	}
+
+	aiMesh* mesh = scene->mMeshes[0];
+
+	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+	{
+		// process vertex positions, normals and texture coordinates
+		glm::vec3 vector;
+		vector.x = mesh->mVertices[i].x;
+		vector.y = mesh->mVertices[i].y;
+		vector.z = mesh->mVertices[i].z;
+		out_vertices.push_back(vector);
+
+		vector.x = mesh->mNormals[i].x;
+		vector.y = mesh->mNormals[i].y;
+		vector.z = mesh->mNormals[i].z;
+
+		out_normals.push_back(vector);
+
+		if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
+		{
+			glm::vec2 vec;
+			vec.x = mesh->mTextureCoords[0][i].x;
+			vec.y = mesh->mTextureCoords[0][i].y;
+
+			out_uvs.push_back(vec);
+		}
+		else
+			out_uvs.push_back(glm::vec2(0.0f, 0.0f));
+	}
+
+	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+	{
+		aiFace face = mesh->mFaces[i];
+		for (unsigned int j = 0; j < face.mNumIndices; j++)
+			out_indices.push_back(face.mIndices[j]);
+	}
 	return true;
 }

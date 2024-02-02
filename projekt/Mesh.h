@@ -55,36 +55,19 @@ public:
 		std::vector < glm::vec3 > out_vertices;
 		std::vector < glm::vec2 > out_uvs;
 		std::vector < glm::vec3 > out_normals;
+
+		std::vector<GLuint> out_indices;
 		
-		if (!loadOBJ(OBJ_file, out_vertices, out_uvs, out_normals))
+		if (!loadOBJ(OBJ_file, out_vertices, out_uvs, out_normals, out_indices))
 			throw std::exception("OBJload failed");
 
 		for (size_t i = 0; i < out_vertices.size(); ++i) {
 			vertices.emplace_back((vertex{ out_vertices.at(i), out_uvs.at(i), out_normals.at(i) }));
+			indices.emplace_back(out_indices.at(i));
 		}
 		
 		primitive = GL_TRIANGLES;
 
-		init_VAO();
-	}
-
-	Mesh(const std::filesystem::path& VS_file, const std::filesystem::path& FS_file, std::vector<vertex>& vertices, std::vector<GLuint> & indices):
-		Mesh(VS_file,FS_file,vertices)
-	{
-		this->indices = indices;
-
-		glBindVertexArray(VAO_ID);
-
-		glGenBuffers(1, &EBO_ID);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_ID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
-
-		glBindVertexArray(0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	}
-
-	Mesh(const std::filesystem::path& VS_file, const std::filesystem::path& FS_file, std::vector<vertex>& vertices) : vertices(vertices), mesh_shader(VS_file, FS_file)
-	{
 		init_VAO();
 	}
 
@@ -173,10 +156,16 @@ private:
 	void init_VAO(void) {
 		// create VAO = data description
 		glGenVertexArrays(1, &VAO_ID);
+		glGenBuffers(1, &EBO_ID);
+		glGenBuffers(1, &VBO_ID);
+
 		glBindVertexArray(VAO_ID);
 
+		// indices
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_ID);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
+
 		// create vertex buffer and fill with data
-		glGenBuffers(1, &VBO_ID);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO_ID);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertex), vertices.data(), GL_STATIC_DRAW);
 
