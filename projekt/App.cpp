@@ -522,12 +522,14 @@ void App::genLabyrinth(cv::Mat& map) {
 }
 
 bool App::checkCollision(const GameObject& obj1, const GameObject& obj2){
-	return (obj1.position.x < obj2.position.x + obj2.dimensions.x &&
-		obj1.position.x + obj1.dimensions.x > obj2.position.x &&
-		obj1.position.y < obj2.position.y + obj2.dimensions.y &&
-		obj1.position.y + obj1.dimensions.y > obj2.position.y &&
-		obj1.position.z < obj2.position.z + obj2.dimensions.z &&
-		obj1.position.z + obj1.dimensions.z > obj2.position.z);
+	return (
+		obj1.position.x - obj1.dimensions.x / 2 < obj2.position.x + obj2.dimensions.x / 2 &&
+		obj1.position.x + obj1.dimensions.x / 2 > obj2.position.x - obj2.dimensions.x / 2 &&
+		obj1.position.y - obj1.dimensions.y / 2 < obj2.position.y + obj2.dimensions.y / 2 &&
+		obj1.position.y + obj1.dimensions.y / 2 > obj2.position.y - obj2.dimensions.y / 2 &&
+		obj1.position.z - obj1.dimensions.z / 2 < obj2.position.z + obj2.dimensions.z / 2 &&
+		obj1.position.z + obj1.dimensions.z / 2 > obj2.position.z - obj2.dimensions.z / 2
+		);
 }
 
 int App::run(void)
