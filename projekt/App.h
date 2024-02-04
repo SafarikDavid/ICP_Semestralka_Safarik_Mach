@@ -99,6 +99,18 @@ private:
     std::unordered_map<std::string, GameObject> scene;
 
     GameObject playerObject;
+
+    // Moving objects 
+        // Speed
+    float bunnySpeed = 0.05f;
+    float superSpeed = 0.5f;
+    float slowSpeed = 0.005f;
+        // End position
+    int bunnyPositiveCap = 13;
+    int bunnyNegativeCap = -1;
+    bool endPosBool = true;
+        // Rotation
+    float rotationAngle = 1.0f;
 };
 
 

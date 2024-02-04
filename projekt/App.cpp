@@ -420,6 +420,21 @@ void App::update_projection_matrix(void)
 		0.1f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
 		20000.0f              // Far clipping plane. Keep as little as possible.
 	);
+
+	// Moving Objects
+	// Bunny - Moving
+	float movementDirection = (endPosBool) ? 1.0f : -1.0f;
+	scene["bunny"].position.x += movementDirection * bunnySpeed;
+	scene["bunny"].position.y += movementDirection * bunnySpeed;
+	scene["bunny"].mesh.model_matrix = glm::scale(glm::translate(glm::identity<glm::mat4>(), scene["bunny"].position), glm::vec3(0.2f));
+
+	if ((endPosBool && scene["bunny"].position.x >= bunnyPositiveCap) ||
+		(!endPosBool && scene["bunny"].position.x <= bunnyNegativeCap)) {
+		endPosBool = !endPosBool;
+	}
+	// Teapot - Rotation
+	//trans = glm::rotate(ma4_for_rotation, angle_in_radians, glm::vec3(0.0f, 0.0f, 1.0f) - osy rotace);
+	scene["ball"].mesh.model_matrix = glm::rotate(scene["ball"].mesh.model_matrix, glm::radians(rotationAngle), glm::vec3(0.0f, 1.0f, 1.0f));
 }
 
 void App::toggleFullscreen(GLFWwindow* window)
@@ -593,6 +608,9 @@ int App::run(void)
 				camera.Position.y += offset.y;
 			}
 
+			// Moving Objects - update object positions
+			update_projection_matrix();
+
 			// update position of player object
 			playerObject.position = camera.Position;
 
@@ -631,7 +649,8 @@ int App::run(void)
 
 			// Draw all objects except end point ("bedna konec")
 			for (auto& scene_object : scene) {
-				if (scene_object.first != "bedna konec") {
+				if (scene_object.first != "bedna konec") 
+				{
 					scene_object.second.mesh.viewPos = camera.Position;
 					scene_object.second.mesh.viewFront = camera.Front;
 					scene_object.second.mesh.draw(projection_matrix, v_m);
@@ -640,7 +659,8 @@ int App::run(void)
 
 			// Draw end point last
 			auto end_point_iter = scene.find("bedna konec");
-			if (end_point_iter != scene.end()) {
+			if (end_point_iter != scene.end()) 
+			{
 				end_point_iter->second.mesh.viewPos = camera.Position;
 				end_point_iter->second.mesh.viewFront = camera.Front;
 				end_point_iter->second.mesh.draw(projection_matrix, v_m);
