@@ -149,7 +149,8 @@ void App::init_assets(void)
 	//GLuint texture_final_box = loadTexture("resources/textures/brick_wall-red.png"); 
 	GLuint texture_final_box = loadTexture("resources/textures/window.png");
 	GLuint texture_bunny = loadTexture("resources/textures/brick_wall-red.png");
-	GLuint texture_ball = loadTexture("resources/textures/green_metal_rust.jpg");
+	GLuint texture_teapot = loadTexture("resources/textures/green_metal_rust.jpg");
+	GLuint texture_flipcow = loadTexture("resources/textures/factory_wall_diff_4k.jpg");
 
 
 	//ShaderProgram s("resources/shaders/obj.vert", "resources/shaders/obj.frag");
@@ -163,13 +164,21 @@ void App::init_assets(void)
 	scene["bunny"].mesh.shininess = 32.0f;
 	scene["bunny"].mesh.texture = texture_bunny;
 
-	scene["ball"].mesh = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/teapot_tri_vnt.obj");
-	scene["ball"].position = glm::vec3(0, 2, 5);
-	scene["ball"].dimensions = scene["ball"].mesh.calculateDimensions(0.2);
-	scene["ball"].mesh.model_matrix = glm::scale(glm::translate(glm::identity<glm::mat4>(), scene["ball"].position), glm::vec3(0.2f));
-	scene["ball"].mesh.specular_material = glm::vec4(glm::vec3(0.8), 1.0);
-	scene["ball"].mesh.shininess = 32.0f;
-	scene["ball"].mesh.texture = texture_ball;
+	scene["teapot"].mesh = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/teapot_tri_vnt.obj");
+	scene["teapot"].position = glm::vec3(0, 2, 5);
+	scene["teapot"].dimensions = scene["teapot"].mesh.calculateDimensions(0.2);
+	scene["teapot"].mesh.model_matrix = glm::scale(glm::translate(glm::identity<glm::mat4>(), scene["teapot"].position), glm::vec3(0.2f));
+	scene["teapot"].mesh.specular_material = glm::vec4(glm::vec3(0.8), 1.0);
+	scene["teapot"].mesh.shininess = 32.0f;
+	scene["teapot"].mesh.texture = texture_teapot;
+
+	scene["suzanne"].mesh = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/suzanne.obj");
+	scene["suzanne"].position = glm::vec3(7, 4, 9);
+	scene["suzanne"].dimensions = scene["suzanne"].mesh.calculateDimensions(0.2);
+	scene["suzanne"].mesh.model_matrix = glm::scale(glm::translate(glm::identity<glm::mat4>(), scene["suzanne"].position), glm::vec3(0.5f));
+	scene["suzanne"].mesh.specular_material = glm::vec4(glm::vec3(0.8), 1.0);
+	scene["suzanne"].mesh.shininess = 32.0f;
+	scene["suzanne"].mesh.texture = texture_flipcow;
 
 	// fully static objects - initialize all (including position) in init_assets()
 	scene["plane"].mesh = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/plane_tri_vnt.obj");
@@ -434,7 +443,11 @@ void App::update_projection_matrix(void)
 	}
 	// Teapot - Rotation
 	//trans = glm::rotate(ma4_for_rotation, angle_in_radians, glm::vec3(0.0f, 0.0f, 1.0f) - osy rotace);
-	scene["ball"].mesh.model_matrix = glm::rotate(scene["ball"].mesh.model_matrix, glm::radians(rotationAngle), glm::vec3(0.0f, 1.0f, 1.0f));
+	scene["teapot"].mesh.model_matrix = glm::rotate(scene["teapot"].mesh.model_matrix, glm::radians(rotationAngle), glm::vec3(0.0f, 1.0f, 1.0f));
+
+	// Suzanne - Rotation back and forth
+	scene["suzanne"].mesh.model_matrix = glm::rotate(scene["suzanne"].mesh.model_matrix, glm::radians(rotationAngle * movementDirection), glm::vec3(0.0f, 1.0f, 0.0f));
+
 }
 
 void App::toggleFullscreen(GLFWwindow* window)
