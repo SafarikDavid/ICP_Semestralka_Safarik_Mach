@@ -445,8 +445,9 @@ void App::update_projection_matrix(void)
 	//trans = glm::rotate(ma4_for_rotation, angle_in_radians, glm::vec3(0.0f, 0.0f, 1.0f) - osy rotace);
 	scene["teapot"].mesh.model_matrix = glm::rotate(scene["teapot"].mesh.model_matrix, glm::radians(rotationAngle), glm::vec3(0.0f, 1.0f, 1.0f));
 
-	// Suzanne - Rotation back and forth
-	scene["suzanne"].mesh.model_matrix = glm::rotate(scene["suzanne"].mesh.model_matrix, glm::radians(rotationAngle * movementDirection), glm::vec3(0.0f, 1.0f, 0.0f));
+	// Suzanne - moving
+	scene["suzanne"].position.z += movementDirection * bunnySpeed;
+	scene["suzanne"].mesh.model_matrix = glm::translate(glm::identity<glm::mat4>(), scene["suzanne"].position);
 
 }
 
