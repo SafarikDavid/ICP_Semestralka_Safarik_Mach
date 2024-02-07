@@ -25,8 +25,8 @@ void App::glfw_framebuffer_size_callback(GLFWwindow* window, int width, int heig
 void App::glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	auto inst = static_cast<App*>(glfwGetWindowUserPointer(window));
-
-	if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+	// || action == GLFW_REPEAT
+	if (action == GLFW_PRESS) {
 		switch (key) {
 		case GLFW_KEY_ESCAPE:
 			std::cout << "ESC has been pressed!\n";
