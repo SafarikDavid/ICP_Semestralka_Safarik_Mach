@@ -197,11 +197,6 @@ void App::init_assets(void)
 	std::string end_cube_identification;
 
 
-	// dynamic objects are initialized only partially
-	scene["cube"].mesh = temp_cube;
-	scene["cube"].mesh.specular_material = glm::vec4(1.0);
-	scene["cube"].mesh.shininess = 3.0f;
-
 	std::string key_val;
 	//Labyrinth build
 	for (auto cols = 0; cols < mapa.cols; ++cols) {
@@ -429,12 +424,14 @@ void App::update_projection_matrix(void)
 		0.1f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
 		20000.0f              // Far clipping plane. Keep as little as possible.
 	);
+}
 
+void App::process_object_movement(GLfloat deltaTime){
 	// Moving Objects
 	// Bunny - Moving
 	float movementDirection = (endPosBool) ? 1.0f : -1.0f;
-	scene["bunny"].position.x += movementDirection * bunnySpeed;
-	scene["bunny"].position.y += movementDirection * bunnySpeed;
+	scene["bunny"].position.x += movementDirection * superSpeed * glm::abs(deltaTime);
+	scene["bunny"].position.y += movementDirection * superSpeed * glm::abs(deltaTime);
 	scene["bunny"].mesh.model_matrix = glm::scale(glm::translate(glm::identity<glm::mat4>(), scene["bunny"].position), glm::vec3(0.2f));
 
 	if ((endPosBool && scene["bunny"].position.x >= bunnyPositiveCap) ||
@@ -443,12 +440,11 @@ void App::update_projection_matrix(void)
 	}
 	// Teapot - Rotation
 	//trans = glm::rotate(ma4_for_rotation, angle_in_radians, glm::vec3(0.0f, 0.0f, 1.0f) - osy rotace);
-	scene["teapot"].mesh.model_matrix = glm::rotate(scene["teapot"].mesh.model_matrix, glm::radians(rotationAngle), glm::vec3(0.0f, 1.0f, 1.0f));
+	scene["teapot"].mesh.model_matrix = glm::rotate(scene["teapot"].mesh.model_matrix, glm::radians(rotationAngle * glm::abs(deltaTime)), glm::vec3(0.0f, 1.0f, 1.0f));
 
 	// Suzanne - moving
-	scene["suzanne"].position.z += movementDirection * bunnySpeed;
+	scene["suzanne"].position.z += movementDirection * superSpeed * glm::abs(deltaTime);
 	scene["suzanne"].mesh.model_matrix = glm::translate(glm::identity<glm::mat4>(), scene["suzanne"].position);
-
 }
 
 void App::toggleFullscreen(GLFWwindow* window)
@@ -623,7 +619,7 @@ int App::run(void)
 			}
 
 			// Moving Objects - update object positions
-			update_projection_matrix();
+			process_object_movement(delta_t);
 
 			// update position of player object
 			playerObject.position = camera.Position;
@@ -651,22 +647,34 @@ int App::run(void)
 			//view
 			glm::mat4 v_m = camera.GetViewMatrix();
 
-			//set Model matrix
-			glm::mat4 m_m = glm::identity<glm::mat4>();
+			//flashlight tracker
+			glm::vec3 flashLightFront;
+			if (trackFlashlight) {
+				float tracker_x = tracker_normalized_center.x;
+				float tracker_y = tracker_normalized_center.y;
+				float tracker_x_offset = 0.5 - tracker_x;
+				float tracker_y_offset = 0.5 - tracker_y;
+				float tracker_yaw = camera.Yaw + (tracker_x_offset * fov_degrees);
+				float tracker_pitch = camera.Pitch + (tracker_y_offset * fov_degrees);
 
-			m_m = glm::translate(m_m, 10.0f * glm::vec3(-0.5f, 0.0f, -0.5f)); //move to center of the plane
-			m_m = glm::translate(m_m, glm::vec3(0, 0.5f, 0)); // move cube UP by half of its size (1.0), so it is not buried
-			m_m = glm::translate(m_m, 10.0f * glm::vec3(tracker_normalized_center.x, 0.0f, tracker_normalized_center.y)); //move according to tracker
-			m_m = glm::rotate(m_m, static_cast<float>(glfwGetTime()), glm::vec3(0.0f, 0.1f, 0.0f)); //rotate around axis Y
-			scene["cube"].mesh.model_matrix = m_m;
+				flashLightFront.x = cos(glm::radians(tracker_yaw)) * cos(glm::radians(tracker_pitch));
+				flashLightFront.y = sin(glm::radians(tracker_pitch));
+				flashLightFront.z = sin(glm::radians(tracker_yaw)) * cos(glm::radians(tracker_pitch));
 
+				flashLightFront = glm::normalize(flashLightFront);
+			}else{
+				flashLightFront.x = camera.Front.x;
+				flashLightFront.y = camera.Front.y;
+				flashLightFront.z = camera.Front.z;
+
+			}
 
 			// Draw all objects except end point ("bedna konec")
 			for (auto& scene_object : scene) {
 				if (scene_object.first != "bedna konec") 
 				{
 					scene_object.second.mesh.viewPos = camera.Position;
-					scene_object.second.mesh.viewFront = camera.Front;
+					scene_object.second.mesh.viewFront = flashLightFront;//camera.Front;
 					scene_object.second.mesh.draw(projection_matrix, v_m);
 				}
 			}
@@ -676,7 +684,7 @@ int App::run(void)
 			if (end_point_iter != scene.end()) 
 			{
 				end_point_iter->second.mesh.viewPos = camera.Position;
-				end_point_iter->second.mesh.viewFront = camera.Front;
+				end_point_iter->second.mesh.viewFront = flashLightFront;//camera.Front;
 				end_point_iter->second.mesh.draw(projection_matrix, v_m);
 			}
 
@@ -687,8 +695,8 @@ int App::run(void)
 			framecnt++;
 			if ((now - last_framecnt_time) >= 1.0) {
 				std::cout << "[FPS] " << framecnt << '\n';
-				std::cout << "Pos: " << camera.Position[0] << " " << camera.Position[1] << " " << camera.Position[2] << '\n';
-				std::cout << "Front: " << camera.Front[0] << " " << camera.Front[1] << " " << camera.Front[2] << '\n';
+				// std::cout << "Pos: " << camera.Position[0] << " " << camera.Position[1] << " " << camera.Position[2] << '\n';
+				// std::cout << "Front: " << camera.Front[0] << " " << camera.Front[1] << " " << camera.Front[2] << '\n';
 				last_framecnt_time = now;
 				framecnt = 0;
 			}
@@ -779,12 +787,16 @@ cv::Point2f App::find_center_normalized_hsv(cv::Mat& frame)
 	// compute centroid of white pixels (average X,Y coordinate of all white pixels)
 	cv::Point2f center;
 	cv::Point2f center_normalized;
-	double h_low = 80.0;
-	double s_low = 50.0;
-	double v_low = 50.0;
 
-	double h_hi = 100.0;
+	//Nastaveni hledane barvy
+	//hue
+	double h_low = 25.0;
+	double h_hi = 35.0;
+	//saturation (y osa v HSV-MAP.png)
+	double s_low = 75.0;
 	double s_hi = 255.0;
+	//value ("z" osa v HSV-MAP.png)
+	double v_low = 50.0;
 	double v_hi = 255.0;
 
 	cv::Mat scene_hsv, scene_threshold;

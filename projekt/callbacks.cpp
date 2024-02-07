@@ -47,7 +47,11 @@ void App::glfw_key_callback(GLFWwindow* window, int key, int scancode, int actio
 		case GLFW_KEY_E:
 			break;
 		case GLFW_KEY_M:	// windowed/fullscreen
-			inst->toggleFullscreen(window);
+			inst->toggleFullscreen
+			(window);
+			break;
+		case GLFW_KEY_T:
+			inst->trackFlashlight = !inst->trackFlashlight;
 			break;
 		default:
 			break;

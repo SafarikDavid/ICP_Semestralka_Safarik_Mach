@@ -100,17 +100,20 @@ private:
 
     GameObject playerObject;
 
-    // Moving objects 
+    bool trackFlashlight = true;
+
+	// Moving objects 
+	void process_object_movement(GLfloat deltaTime);
         // Speed
-    float bunnySpeed = 0.05f;
-    float superSpeed = 0.5f;
+    float rotationSpeed = 20.5f;
+    float superSpeed = 5.0f;
     float slowSpeed = 0.005f;
         // End position
     int bunnyPositiveCap = 13;
     int bunnyNegativeCap = -1;
     bool endPosBool = true;
         // Rotation
-    float rotationAngle = 1.0f;
+    float rotationAngle = 25.0f;
 };
 
 
