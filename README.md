@@ -1,4 +1,4 @@
-# Interactive OpenGL project (Semester Project for ICP)
+# Interactive OpenGL Project (Semester Project for ICP)
 
 ## Controls
 
