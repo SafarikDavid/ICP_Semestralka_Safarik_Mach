@@ -108,8 +108,6 @@ bool App::init()
 
 		genLabyrinth(mapa);
 
-		std::cout << mapa;
-
 	init_assets();
 	}
 	catch (std::exception const& e) {
