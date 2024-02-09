@@ -1,4 +1,7 @@
 # Interactive OpenGL Project (Semester Project for ICP)
+## Run Project
+To run directly, go to the "executable project" folder and start "ICP.exe" in it. 
+(The source code itself is in the "project" folder)
 
 ## Controls
 
