@@ -37,14 +37,13 @@ public:
 
 
 	glm::mat4 model_matrix;
-	glm::vec4 diffuse_material;
-	glm::vec4 ambient_material;
+
 	glm::vec4 specular_material;
 	float shininess;
 	GLuint texture = 0;
 
 	glm::vec3 viewPos;
-	glm::vec3 viewFront;
+	glm::vec3 flashLightDirection;
 
 	ShaderProgram mesh_shader;
 
@@ -73,20 +72,21 @@ public:
 
 	void draw(const glm::mat4 & projection_matrix, const glm::mat4 & view_matrix, const glm::mat4 & model_matrix) {
 		mesh_shader.activate();
+
 		// P,V,M
 		mesh_shader.setUniform("uPm", projection_matrix);
 		mesh_shader.setUniform("uVm", view_matrix);
 		mesh_shader.setUniform("uMm", model_matrix);
-		// mesh_shader.setUniform("diffuse_material", diffuse_material);
-		// mesh_shader.setUniform("ambient_material", ambient_material);
+
 		// Material
 		mesh_shader.setUniform("specular_material", specular_material);
 		mesh_shader.setUniform("shininess", shininess);
 
+		// View Position
 		mesh_shader.setUniform("viewPos", viewPos);
 
+		// Point Light
 		mesh_shader.setUniform("pointLight.position", glm::vec3(view_matrix * glm::vec4(glm::vec3(5.0f, 10.0f, 5.0f), 1.0))); // Transform world-space light position to view-space light position
-		// mesh_shader.setUniform("pointLight.position", glm::vec3(5.0f, 10.0f, 5.0f));
 		mesh_shader.setUniform("pointLight.ambient", glm::vec3(.5f));
 		mesh_shader.setUniform("pointLight.diffuse", glm::vec3(.5f));
 		mesh_shader.setUniform("pointLight.specular", glm::vec3(.5f));
@@ -94,14 +94,14 @@ public:
 		mesh_shader.setUniform("pointLight.linear", 0.045f);
 		mesh_shader.setUniform("pointLight.quadratic", 0.0075f);
 
-		// Ambient light
+		// Ambient light (is coming from every direction)
 		mesh_shader.setUniform("ambientLight.ambient", glm::vec3(0.05f));
 		mesh_shader.setUniform("ambientLight.diffuse", glm::vec3(0.05f));
 		mesh_shader.setUniform("ambientLight.specular", glm::vec3(0.05f));
 
 		// Spotlight - Flashlight
 		mesh_shader.setUniform("spotLight.position", glm::vec3(view_matrix * glm::vec4(viewPos, 1.0)));
-		mesh_shader.setUniform("spotLight.direction", glm::vec3(view_matrix * glm::vec4(viewFront, 0.0)));
+		mesh_shader.setUniform("spotLight.direction", glm::vec3(view_matrix * glm::vec4(flashLightDirection, 0.0)));
 
 		mesh_shader.setUniform("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
 		mesh_shader.setUniform("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
@@ -120,7 +120,7 @@ public:
 		mesh_shader.setUniform("directionalLight.diffuse", glm::vec3(0.2f));
 		mesh_shader.setUniform("directionalLight.specular", glm::vec3(0.3f));
 
-		// bind texture
+		// Bind texture
 		if (texture != 0)
 			glBindTexture(GL_TEXTURE_2D, texture);
 		glActiveTexture(GL_TEXTURE0);

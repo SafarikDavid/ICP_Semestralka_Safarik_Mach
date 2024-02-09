@@ -1,0 +1,8 @@
+D:\Temp\ICP 23zs\07\x64\Release\ICP.exe
+D:\ICP\09cv\09 projekt\x64\Release\ICP.exe
+D:\ICP\09cv\09projekt\x64\Release\ICP.exe
+C:\Users\cervinka\Desktop\school\ICP\ICP_23_11_2023_stolen\09cv\09projekt\x64\Release\ICP.exe
+C:\Users\Davsa\Downloads\cv09_labyrinth\cv09_labyrinth\x64\Release\ICP.exe
+D:\School\Ing\ICP\SemestralniPrace\ICP_Semestralka_Safarik_Mach\projekt\x64\Release\ICP.exe
+D:\VS\IT\2_rocnik\1_semestr\ICP\projekt\x64\Release\ICP.exe
+D:\VS\IT\2_rocnik\1_semestr\ICP\ICP_Semestralka_Safarik_Mach\projekt\x64\Release\ICP.exe

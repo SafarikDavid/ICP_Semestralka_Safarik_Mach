@@ -29,28 +29,25 @@ void App::glfw_key_callback(GLFWwindow* window, int key, int scancode, int actio
 	if (action == GLFW_PRESS) {
 		switch (key) {
 		case GLFW_KEY_ESCAPE:
+			// close game
 			std::cout << "ESC has been pressed!\n";
 			glfwSetWindowShouldClose(window, GLFW_TRUE);
 			break;
-		case GLFW_KEY_SPACE:
-			inst->clear_color = glm::vec4(0.0f);
-			glClearColor(inst->clear_color.r, inst->clear_color.g,
-				inst->clear_color.b, inst->clear_color.a);
-			break;
 		case GLFW_KEY_V:
+			//controls vsync
 			if (inst->swap_interval != 0)
 				inst->swap_interval = 0; //vsync off
 			else
 				inst->swap_interval = 1; //vsync on
 			glfwSwapInterval(inst->swap_interval); // set vsync
 			break;
-		case GLFW_KEY_E:
-			break;
-		case GLFW_KEY_M:	// windowed/fullscreen
+		case GLFW_KEY_M:
+			// switch windowed/fullscreen
 			inst->toggleFullscreen
 			(window);
 			break;
 		case GLFW_KEY_T:
+			// switch tracker for flashlight
 			inst->trackFlashlight = !inst->trackFlashlight;
 			break;
 		default:
@@ -61,6 +58,8 @@ void App::glfw_key_callback(GLFWwindow* window, int key, int scancode, int actio
 
 void App::glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+	// changes FOV
+
 	auto inst = static_cast<App*>(glfwGetWindowUserPointer(window));
 
 	inst->fov_degrees += 10.0f * yoffset;
@@ -73,6 +72,7 @@ void App::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	auto inst = static_cast<App*>(glfwGetWindowUserPointer(window));
 
+	// prevents screen jumps when first gaining focus and when chaning windowed/fullscreen
 	if (inst->firstMouse)
 	{
 		inst->lastX = xpos;

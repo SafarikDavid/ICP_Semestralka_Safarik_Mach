@@ -61,7 +61,6 @@ out vec4 FragColor;
 in vec2 texcoord;
 in vec3 normal;
 in vec3 fragPos;
-//in vec3 lightPos;
 
 vec4 calculateAmbientLighting(AmbientLight light){
     // ambient

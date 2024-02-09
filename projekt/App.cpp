@@ -14,8 +14,6 @@
 
 App::App()
 {
-	// default constructor
-	// nothing to do here (so far...)
 }
 
 void App::init_glew(void) {
@@ -42,14 +40,6 @@ void App::init_glew(void) {
 			std::cout << "WGLEW successfully initialized platform specific functions.\n";
 		}
 	}
-	//{ // get extension list
-	//    GLint n = 0;
-	//    glGetIntegerv(GL_NUM_EXTENSIONS, &n);
-	//    for (GLint i = 0; i < n; i++) {
-	//        const char* extension_name = (const char*)glGetStringi(GL_EXTENSIONS, i);
-	//        std::cout << extension_name << '\n';
-	//    }
-	//}
 }
 
 void App::init_glfw(void)
@@ -68,7 +58,7 @@ void App::init_glfw(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(800, 600, "Gamesa", NULL, NULL);
+	window = glfwCreateWindow(800, 600, "Game", NULL, NULL);
 	if (!window) {
 		throw std::exception("GLFW window can not be created.");
 	}
@@ -142,20 +132,18 @@ void App::init_gl_debug()
 
 void App::init_assets(void)
 {
+	// set player bounding box dimensions
 	playerObject.dimensions = glm::vec3(0.5);
 
+	// texture loading
 	GLuint texture_box = loadTexture("resources/textures/box_rgb888.png");
 	GLuint texture_floor = loadTexture("resources/textures/pavement.jpg");
-	//GLuint texture_final_box = loadTexture("resources/textures/brick_wall-red.png"); 
 	GLuint texture_final_box = loadTexture("resources/textures/window.png");
 	GLuint texture_bunny = loadTexture("resources/textures/brick_wall-red.png");
 	GLuint texture_teapot = loadTexture("resources/textures/green_metal_rust.jpg");
 	GLuint texture_flipcow = loadTexture("resources/textures/factory_wall_diff_4k.jpg");
 
-
-	//ShaderProgram s("resources/shaders/obj.vert", "resources/shaders/obj.frag");
-
-	//scene["bunny"] = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/female_secretary/female_secretary.fbx");
+	// Scene creation
 	scene["bunny"].mesh = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/bunny_tri_vnt.obj");
 	scene["bunny"].position = glm::vec3(0, 2, 0);
 	scene["bunny"].dimensions = scene["bunny"].mesh.calculateDimensions(0.2f);
@@ -180,7 +168,6 @@ void App::init_assets(void)
 	scene["suzanne"].mesh.shininess = 32.0f;
 	scene["suzanne"].mesh.texture = texture_flipcow;
 
-	// fully static objects - initialize all (including position) in init_assets()
 	scene["plane"].mesh = Mesh("resources/shaders/obj.vert", "resources/shaders/obj.frag", "resources/models/plane_tri_vnt.obj");
 	scene["plane"].position = glm::vec3(5, 0, 5);
 	scene["plane"].dimensions = scene["plane"].mesh.calculateDimensions();
@@ -205,8 +192,6 @@ void App::init_assets(void)
 				case '.':
 					break;
 				case 'e':
-					// end_cube.diffuse_material = glm::vec4(glm::vec3(0.8, 0.4, 0.4), 1.0);
-					// end_cube.ambient_material = glm::vec4(glm::vec3(0.8, 0.4, 0.4), 1.0);
 					end_cube.specular_material = glm::vec4(1.0);
 					end_cube.shininess = 0.5f;
 					end_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
@@ -220,8 +205,6 @@ void App::init_assets(void)
 					break;
 				case '#':
 					key_val = std::string("bedna ").append(std::to_string(cols).append(";").append(std::to_string(rows)));
-					// temp_cube.diffuse_material = glm::vec4(glm::vec3(0.8), 1.0);
-					// temp_cube.ambient_material = glm::vec4(glm::vec3(0.8), 1.0);
 					temp_cube.specular_material = glm::vec4(glm::vec3(0.8), 1.0);
 					temp_cube.shininess = 0.5f;
 					temp_cube.model_matrix = glm::translate(glm::identity<glm::mat4>(), glm::vec3(cols, 0.5f, rows));
@@ -257,7 +240,7 @@ GLuint App::loadTexture(char const* path)
 		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat 
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -271,58 +254,6 @@ GLuint App::loadTexture(char const* path)
 	}
 
 	return textureID;
-}
-
-GLuint App::gen_tex(const std::filesystem::path& file_name)
-{
-	GLuint ID;
-	cv::Mat image = cv::imread(file_name.string(), cv::IMREAD_UNCHANGED); // Read with (potential) Alpha
-
-	// Generates an OpenGL texture object
-	glGenTextures(1, &ID);
-
-	// Assigns the texture to a Texture Unit
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, ID);
-
-	// Texture data alignment for transfer (single byte = basic, slow, but safe option; usually not necessary) 
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	// Assigns the image to the OpenGL Texture object
-	switch (image.channels()) {
-	case 3:
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.cols, image.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, image.data);
-		break;
-	case 4:
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.cols, image.rows, 0, GL_BGRA, GL_UNSIGNED_BYTE, image.data);
-		break;
-	default:
-		throw std::exception("texture failed"); // Check the image, we want Alpha in this example    
-	}
-
-
-
-	// Configures the type of algorithm that is used to make the image smaller or bigger
-	// nearest neighbor - ugly & fast 
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	// bilinear - nicer & slower
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);    
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-	// MIPMAP filtering + automatic MIPMAP generation - nicest, needs more memory. Notice: MIPMAP is only for image minifying.
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // bilinear magnifying
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // trilinear minifying
-	glGenerateMipmap(GL_TEXTURE_2D);  //Generate mipmaps now.
-
-	// Configures the way the texture repeats
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	// Unbinds the OpenGL Texture object so that it can't accidentally be modified
-	glBindTexture(GL_TEXTURE_2D, 0);
-	return ID;
 }
 
 void App::print_opencv_info()
@@ -399,15 +330,9 @@ void App::init_opencv()
 
 	if (!capture.isOpened())
 	{
-		std::cerr << "no camera source? Fallback to video..." << std::endl;
+		std::cerr << "No camera source? Tracker feature disabled." << std::endl;
 
-		//open video file
-		capture = cv::VideoCapture("resources/video.mkv");
-		if (!capture.isOpened())
-		{
-			std::cerr << "no source?... " << std::endl;
-			exit(EXIT_FAILURE);
-		}
+		videoAvailable = false;
 	}
 }
 
@@ -419,7 +344,7 @@ void App::update_projection_matrix(void)
 	float ratio = static_cast<float>(width) / height;
 
 	projection_matrix = glm::perspective(
-		glm::radians(fov_degrees), // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
+		glm::radians(fov_degrees), // The vertical Field of View, in radians: the amount of "zoom". Usually between 90° (extra wide) and 30° (quite zoomed in)
 		ratio,			     // Aspect Ratio. Depends on the size of your window.
 		0.1f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
 		20000.0f              // Far clipping plane. Keep as little as possible.
@@ -541,8 +466,8 @@ void App::genLabyrinth(cv::Mat& map) {
 	}
 
 	//set player position in 3D space (transform X-Y in map to XYZ in GL)
-	camera.Position.x = (start_position.x) + 1.0 / 2.0f;
-	camera.Position.z = (start_position.y) + 1.0 / 2.0f;
+	camera.Position.x = (start_position.x);
+	camera.Position.z = (start_position.y);
 	camera.Position.y = camera.camera_height;
 }
 
@@ -564,7 +489,8 @@ int App::run(void)
 		double last_frame_time = glfwGetTime();
 		double last_framecnt_time = last_frame_time;
 
-		std::thread vlakno(&App::thread_code, this);
+		// start thread 
+		std::thread tracker_thread(&App::tracker_thread_code, this);
 
 		glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
 		
@@ -582,27 +508,25 @@ int App::run(void)
 		update_projection_matrix();
 		glViewport(0, 0, width, height);
 
+		// update camera parameters
 		camera.MovementSpeed = 3;
-		//camera.Position = glm::vec3(0.0f, 5.0f, 10.0f);
 		lastX = width/2;
 		lastY = height/2;
 
-		// update position of player object
+		// update position of player object to match camera's position
 		playerObject.position = camera.Position;
 
 		cv::Point2f tracker_normalized_center{ 0 };
 		while (!glfwWindowShouldClose(window))
 		{
+			// get new time
 			double now = glfwGetTime();
 			double delta_t = now - last_frame_time;
 
 			// thread related stuff
-			{
-				if (!fronta.empty()) {
-					tracker_normalized_center = fronta.pop_front();
-					//std::cout << "Normalized center found at: " << tracker_normalized_center << "\n";
-					std::cout << '.';
-				}
+			if (videoAvailable && !fronta.empty()) {
+				tracker_normalized_center = fronta.pop_front();
+				std::cout << '.';
 			}
 
 			// process movement from keyboard, use poll method
@@ -610,6 +534,7 @@ int App::run(void)
 
 			camera.Position.x += offset.x;
 			camera.Position.z += offset.z;
+			// cannot move into negative position on the y axis
 			if (camera.Position.y + offset.y < 0.0 + camera.camera_height) {
 				camera.Position.y = 0.0f + camera.camera_height;
 				offset.y = 0;
@@ -627,6 +552,8 @@ int App::run(void)
 			// collision detection loop
 			for (auto& scene_object : scene) {
 				if (checkCollision(playerObject, scene_object.second)) {
+					// collision resolution - reverting movement
+					// better would be to calculate distance to perfect collision
 					camera.Position.x -= offset.x;
 					camera.Position.z -= offset.z;
 					camera.Position.y -= offset.y;
@@ -639,33 +566,42 @@ int App::run(void)
 
 			// process mouse movements
 			camera.ProcessMouseMovement(xoffset, yoffset);
-			xoffset = 0; yoffset = 0;
+			xoffset = 0; yoffset = 0; // set offsets to zero to eliminate residual values
 
 			// OpenGL stuff...
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			//view
-			glm::mat4 v_m = camera.GetViewMatrix();
+			glm::mat4 view_matrix = camera.GetViewMatrix();
 
 			//flashlight tracker
-			glm::vec3 flashLightFront;
-			if (trackFlashlight) {
+			glm::vec3 flashLightDirection;
+			if (videoAvailable && trackFlashlight) {
+				// calculate offset from the camera view based on the tracker position
 				float tracker_x = tracker_normalized_center.x;
 				float tracker_y = tracker_normalized_center.y;
 				float tracker_x_offset = 0.5 - tracker_x;
 				float tracker_y_offset = 0.5 - tracker_y;
+				// the ammount of tracker flashlight offset is dependent on fov
 				float tracker_yaw = camera.Yaw + (tracker_x_offset * fov_degrees);
 				float tracker_pitch = camera.Pitch + (tracker_y_offset * fov_degrees);
 
-				flashLightFront.x = cos(glm::radians(tracker_yaw)) * cos(glm::radians(tracker_pitch));
-				flashLightFront.y = sin(glm::radians(tracker_pitch));
-				flashLightFront.z = sin(glm::radians(tracker_yaw)) * cos(glm::radians(tracker_pitch));
+				flashLightDirection.x = cos(glm::radians(tracker_yaw)) * cos(glm::radians(tracker_pitch));
+				flashLightDirection.y = sin(glm::radians(tracker_pitch));
+				flashLightDirection.z = sin(glm::radians(tracker_yaw)) * cos(glm::radians(tracker_pitch));
 
-				flashLightFront = glm::normalize(flashLightFront);
+				flashLightDirection = glm::normalize(flashLightDirection);
+
+				//check if result in NaN
+				if (std::isnan(flashLightDirection.x) || std::isnan(flashLightDirection.y) || std::isnan(flashLightDirection.z)){
+					flashLightDirection.x = camera.Front.x;
+					flashLightDirection.y = camera.Front.y;
+					flashLightDirection.z = camera.Front.z;
+				}
 			}else{
-				flashLightFront.x = camera.Front.x;
-				flashLightFront.y = camera.Front.y;
-				flashLightFront.z = camera.Front.z;
+				flashLightDirection.x = camera.Front.x;
+				flashLightDirection.y = camera.Front.y;
+				flashLightDirection.z = camera.Front.z;
 
 			}
 
@@ -674,18 +610,18 @@ int App::run(void)
 				if (scene_object.first != "bedna konec") 
 				{
 					scene_object.second.mesh.viewPos = camera.Position;
-					scene_object.second.mesh.viewFront = flashLightFront;//camera.Front;
-					scene_object.second.mesh.draw(projection_matrix, v_m);
+					scene_object.second.mesh.flashLightDirection = flashLightDirection;
+					scene_object.second.mesh.draw(projection_matrix, view_matrix);
 				}
 			}
 
-			// Draw end point last
+			// Draw end point last - for correct transparency
 			auto end_point_iter = scene.find("bedna konec");
 			if (end_point_iter != scene.end()) 
 			{
 				end_point_iter->second.mesh.viewPos = camera.Position;
-				end_point_iter->second.mesh.viewFront = flashLightFront;//camera.Front;
-				end_point_iter->second.mesh.draw(projection_matrix, v_m);
+				end_point_iter->second.mesh.flashLightDirection = flashLightDirection;
+				end_point_iter->second.mesh.draw(projection_matrix, view_matrix);
 			}
 
 			glfwSwapBuffers(window);
@@ -694,16 +630,14 @@ int App::run(void)
 			
 			framecnt++;
 			if ((now - last_framecnt_time) >= 1.0) {
-				std::cout << "[FPS] " << framecnt << '\n';
-				// std::cout << "Pos: " << camera.Position[0] << " " << camera.Position[1] << " " << camera.Position[2] << '\n';
-				// std::cout << "Front: " << camera.Front[0] << " " << camera.Front[1] << " " << camera.Front[2] << '\n';
+				std::cout << "[FPS] " << framecnt << std::endl;
 				last_framecnt_time = now;
 				framecnt = 0;
 			}
 		}
 
-		koncime = true;
-		vlakno.join();
+		thread_should_end = true;
+		tracker_thread.join();
 	}
 	catch (std::exception const& e) {
 		std::cerr << "App failed : " << e.what() << std::endl;
@@ -727,8 +661,11 @@ App::~App()
 	std::cout << "Game Ended...\n";
 }
 
-void App::thread_code(void)
+void App::tracker_thread_code(void)
 {
+	// No video?
+	if (!videoAvailable) return;
+
 	cv::Mat frame;
 
 	try {
@@ -739,12 +676,11 @@ void App::thread_code(void)
 			if (frame.empty())
 				throw std::exception("Empty file? Wrong path?");
 
-			//cv::Point2f center_normalized = find_center_normalized(frame);
 			cv::Point2f center_normalized = find_center_normalized_hsv(frame);
 
 			fronta.push_back(center_normalized);
 
-			if (koncime)
+			if (thread_should_end)
 			{
 				capture.release();
 				break;
@@ -752,33 +688,9 @@ void App::thread_code(void)
 		}
 	}
 	catch (std::exception const& e) {
-		std::cerr << "App failed : " << e.what() << std::endl;
+		std::cerr << "App failed in thread : " << e.what() << std::endl;
 		exit(EXIT_FAILURE);
 	}
-}
-
-void App::draw_cross(cv::Mat& img, int x, int y, int size)
-{
-	cv::Point p1(x - size / 2, y);
-	cv::Point p2(x + size / 2, y);
-	cv::Point p3(x, y - size / 2);
-	cv::Point p4(x, y + size / 2);
-
-	cv::line(img, p1, p2, CV_RGB(255, 0, 0), 3);
-	cv::line(img, p3, p4, CV_RGB(255, 0, 0), 3);
-}
-
-cv::Point2f App::find_center_normalized(cv::Mat& frame)
-{
-	// convert to grayscale, create threshold, sum white pixels
-	// compute centroid of white pixels (average X,Y coordinate of all white pixels)
-	cv::Point2f center;
-	cv::Point2f center_normalized;
-
-	//std::cout << "Center absolute: " << center << '\n';
-	//std::cout << "Center normalized: " << center_normalized << '\n';
-
-	return center_normalized;
 }
 
 cv::Point2f App::find_center_normalized_hsv(cv::Mat& frame)
@@ -833,21 +745,4 @@ cv::Point2f App::find_center_normalized_hsv(cv::Mat& frame)
 	//std::cout << "Center normalized: " << center_normalized << '\n';
 
 	return center_normalized;
-}
-
-void App::draw_cross_normalized(cv::Mat& img, cv::Point2f center_normalized, int size)
-{
-	center_normalized.x = std::clamp(center_normalized.x, 0.0f, 1.0f);
-	center_normalized.y = std::clamp(center_normalized.y, 0.0f, 1.0f);
-	//size = std::clamp(size, 1, std::min(img.cols, img.rows));
-
-	cv::Point2f center_absolute(center_normalized.x * img.cols, center_normalized.y * img.rows);
-
-	cv::Point2f p1(center_absolute.x - size / 2, center_absolute.y);
-	cv::Point2f p2(center_absolute.x + size / 2, center_absolute.y);
-	cv::Point2f p3(center_absolute.x, center_absolute.y - size / 2);
-	cv::Point2f p4(center_absolute.x, center_absolute.y + size / 2);
-
-	cv::line(img, p1, p2, CV_RGB(255, 0, 0), 3);
-	cv::line(img, p3, p4, CV_RGB(255, 0, 0), 3);
 }

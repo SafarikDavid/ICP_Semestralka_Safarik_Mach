@@ -31,15 +31,11 @@ public:
 
     int run(void);
 
-    void draw_cross_normalized(cv::Mat& img, cv::Point2f center_relative, int size);
-    void draw_cross(cv::Mat& img, int x, int y, int size);
-    cv::Point2f find_center_normalized(cv::Mat& frame);
-
     cv::Point2f find_center_normalized_hsv(cv::Mat& frame);
 
     ~App(); //default destructor, called on app instance destruction
 private:
-    void thread_code(void);
+    void tracker_thread_code(void);
 
     void init_opencv();
     void init_glew(void);
@@ -77,7 +73,7 @@ private:
 
     cv::VideoCapture capture;
     synced_deque<cv::Point2f> fronta;
-    std::atomic<bool> koncime = false;
+    std::atomic<bool> thread_should_end = false;
 
     // GL
     GLFWwindow* window = { nullptr };
@@ -91,29 +87,29 @@ private:
     float fov_degrees = 45.0f;
 
     bool firstMouse = true;
-    float lastX, lastY, xoffset, yoffset;
+    float lastX = 0, lastY = 0, xoffset = 0, yoffset = 0;
     Camera camera = Camera(glm::vec3(0.0f, 5.0f, 10.0f));
 
+    // Fullscreen/windowed
     bool isFullscreen = false;
-    
+    // Game Objects
     std::unordered_map<std::string, GameObject> scene;
-
     GameObject playerObject;
-
+    // Tracker
     bool trackFlashlight = true;
 
 	// Moving objects 
 	void process_object_movement(GLfloat deltaTime);
         // Speed
-    float rotationSpeed = 20.5f;
     float superSpeed = 5.0f;
-    float slowSpeed = 0.005f;
         // End position
     int bunnyPositiveCap = 13;
     int bunnyNegativeCap = -1;
     bool endPosBool = true;
         // Rotation
     float rotationAngle = 25.0f;
+
+	std::atomic<bool> videoAvailable = true;
 };
 
 
